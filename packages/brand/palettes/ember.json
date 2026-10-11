@@ -1,0 +1,13 @@
+{
+  "name": "ember",
+  "note": "Amber through coral. Warm and distinctive — rare in this category, which is the point. Check contrast on small text before committing.",
+  "colors": {
+    "primary": "#D97706",
+    "primaryHover": "#F59E0B",
+    "accent": "#FBBF24",
+    "accentDeep": "#C2410C",
+    "gradientFrom": "#B45309",
+    "gradientVia": "#EA580C",
+    "gradientTo": "#DB2777"
+  }
+}

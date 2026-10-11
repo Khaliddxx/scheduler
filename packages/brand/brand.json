@@ -1,0 +1,93 @@
+{
+  "$comment": [
+    "SINGLE SOURCE OF TRUTH FOR THE BRAND.",
+    "",
+    "This one file renames and re-skins BOTH deliverables:",
+    "  1. the marketing site in apps/web (imported via @scheduler/brand)",
+    "  2. the self-hosted application image built by infra/overlay (read by apply-brand.mjs)",
+    "",
+    "The product name below is a PLACEHOLDER. It was not chosen; it is a legible stand-in",
+    "so the site is demoable before naming is settled. See docs/07-naming.md.",
+    "To rename the whole product: change `name` and `domain` here, then run `pnpm brand:apply`.",
+    "Nothing else in either codebase hardcodes the product name."
+  ],
+
+  "name": "Kolo",
+  "legalName": "Kolo",
+  "tagline": "Run your whole social calendar from one place",
+  "description": "Schedule, publish and measure posts across every network you use, from a single calendar — with your own AI agents doing the drafting.",
+  "domain": "example.com",
+  "supportEmail": "support@example.com",
+
+  "placeholder": true,
+
+  "app": {
+    "$comment": "Where the deployed scheduling application lives. Must be final before OAuth app registration — see docs/03-oauth-app-registration.md.",
+    "url": "https://app.example.com",
+    "loginPath": "/auth/login",
+    "registerPath": "/auth"
+  },
+
+  "upstream": {
+    "$comment": "AGPL compliance: the source we build from, and where our modified source is published. See docs/06-agpl-compliance.md.",
+    "project": "Postiz",
+    "repo": "https://github.com/gitroomhq/postiz-app",
+    "pinnedTag": "v2.11.3",
+    "licence": "AGPL-3.0",
+    "sourceOfferUrl": "https://github.com/Khaliddxx/scheduler"
+  },
+
+  "colors": {
+    "$comment": "Dark-first palette. `primary` and `accent` are the two that carry the brand; everything else is neutral scaffolding shared with the app overlay.",
+    "bg": "#0E0E0E",
+    "bgInner": "#1A1919",
+    "bgLine": "#212121",
+    "surface": "#161515",
+    "border": "#252525",
+    "separator": "#272626",
+    "text": "#FFFFFF",
+    "textMuted": "#D1D1D1",
+    "textDim": "#999999",
+
+    "primary": "#612BD3",
+    "primaryHover": "#6F3AE0",
+    "accent": "#FC69FF",
+    "accentDeep": "#D82D7E",
+
+    "gradientFrom": "#8217C3",
+    "gradientVia": "#4C27E1",
+    "gradientTo": "#B611B0",
+
+    "success": "#3C7C5A",
+    "warning": "#FCBA03",
+    "danger": "#FF0033"
+  },
+
+  "radii": {
+    "card": "20px",
+    "cardLarge": "32px",
+    "control": "9999px",
+    "input": "12px"
+  },
+
+  "fonts": {
+    "$comment": "Both are Google Fonts, SIL Open Font Licence — free for commercial use, self-hosted by next/font so there is no third-party request at runtime.",
+    "display": "Plus Jakarta Sans",
+    "body": "DM Sans"
+  },
+
+  "social": {
+    "github": "",
+    "x": "",
+    "discord": "",
+    "linkedin": "",
+    "youtube": ""
+  },
+
+  "legal": {
+    "entity": "",
+    "jurisdiction": "",
+    "address": "",
+    "$comment": "Fill before launch. Several social platforms require a reachable legal entity, a live privacy policy and terms URL during app review."
+  }
+}

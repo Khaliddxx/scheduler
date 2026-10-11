@@ -1,0 +1,13 @@
+{
+  "name": "indigo",
+  "note": "Indigo through sky blue. The safe choice: familiar in SaaS, high contrast, clearly not the reference violet.",
+  "colors": {
+    "primary": "#4F46E5",
+    "primaryHover": "#6366F1",
+    "accent": "#38BDF8",
+    "accentDeep": "#1E3A8A",
+    "gradientFrom": "#4338CA",
+    "gradientVia": "#2563EB",
+    "gradientTo": "#0EA5E9"
+  }
+}

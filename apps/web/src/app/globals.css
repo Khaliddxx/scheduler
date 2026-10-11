@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Brand variables.
+ *
+ * These are generated from packages/brand/brand.json by `pnpm brand:apply`, which
+ * rewrites the block between the GENERATED markers. Edit brand.json, not this block.
+ *
+ * The same variable names are written into the self-hosted application's colors.scss
+ * by infra/overlay, so the marketing site and the product it sells share one palette.
+ */
+:root {
+  /* --- GENERATED:COLORS --- */
+  --bg: #0e0e0e;
+  --bg-inner: #1a1919;
+  --bg-line: #212121;
+  --surface: #161515;
+  --border: #252525;
+  --separator: #272626;
+  --text: #ffffff;
+  --text-muted: #d1d1d1;
+  --text-dim: #999999;
+  --primary: #612bd3;
+  --primary-hover: #6f3ae0;
+  --accent: #fc69ff;
+  --accent-deep: #d82d7e;
+  --gradient-from: #8217c3;
+  --gradient-via: #4c27e1;
+  --gradient-to: #b611b0;
+  --success: #3c7c5a;
+  --warning: #fcba03;
+  --danger: #ff0033;
+  /* --- /GENERATED:COLORS --- */
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* The sticky header must not cover an anchored section. */
+    scroll-padding-top: 96px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-feature-settings: 'ss01', 'cv01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: #0e0e0e;
+  }
+
+  /* Visible focus for keyboard users on a dark ground, without a ring on mouse click. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Page gutter. 16px on phones, as required for small screens. */
+  .shell {
+    @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8;
+  }
+
+  /* The repeated card treatment: dark surface, inset hairline, generous radius. */
+  .card {
+    @apply rounded-card bg-bgInner shadow-hairline;
+  }
+
+  .card-lg {
+    @apply rounded-card-lg bg-bgInner shadow-hairline;
+  }
+
+  /* Gradient-filled feature panel. */
+  .panel-brand {
+    background-image: linear-gradient(138deg, var(--gradient-via) 10%, #2f007b 76%);
+    @apply rounded-card-lg shadow-hairline;
+  }
+
+  /* Small uppercase label that sits above a section heading. */
+  .eyebrow {
+    @apply inline-flex items-center rounded-control bg-white/10 px-3 py-1.5 text-eyebrow uppercase text-white;
+  }
+
+  /* Text that carries the brand gradient. */
+  .text-gradient {
+    background-image: linear-gradient(
+      to right,
+      var(--gradient-from),
+      var(--gradient-via),
+      var(--gradient-to)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Edge fade for horizontally scrolling marquees. */
+  .mask-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 8%,
+      black 92%,
+      transparent
+    );
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .mask-y {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 6%,
+      black 94%,
+      transparent
+    );
+    mask-image: linear-gradient(to bottom, transparent, black 6%, black 94%, transparent);
+  }
+
+  /* Pause marquees on hover so a reader can actually read a card. */
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* Thin, unobtrusive scrollbars inside scrollable panels. */
+@layer utilities {
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scrollbar-slim::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+  }
+}

@@ -1,0 +1,140 @@
+# Local reproduction of the production stack.
+#
+# This exists so you can break things somewhere that is not production. It runs
+# the same three services Railway runs, pinned the same way, so a problem you
+# reproduce here is a problem you have actually reproduced.
+#
+#   cp infra/.env.example infra/.env   # then fill it in
+#   docker compose -f infra/docker-compose.yml --env-file infra/.env up -d
+#
+# To run YOUR branded image instead of the stock one, build it first:
+#   docker build -f infra/overlay/Dockerfile --build-arg UPSTREAM_TAG=v2.11.3 -t app:local-brand .
+# then set APP_IMAGE=app:local-brand in infra/.env.
+
+name: scheduler-local
+
+services:
+  app:
+    # Pinned by tag, and the tag matters: v2.11.3 is the last release before
+    # upstream replaced the queue engine. See docs/02-where-to-edit-the-app.md.
+    image: ${APP_IMAGE:-ghcr.io/gitroomhq/postiz-app:v2.11.3}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # --- URLs. All three must be the PUBLIC address. ---------------------
+      # These feed the OAuth callback URLs registered with every social
+      # platform. Changing them later means re-registering every app.
+      MAIN_URL: ${MAIN_URL:-http://localhost:5000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5000}
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:5000/api}
+      BACKEND_INTERNAL_URL: http://localhost:3000
+
+      # --- Datastores ------------------------------------------------------
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-localdev}@postgres:5432/scheduler
+      REDIS_URL: redis://redis:6379
+
+      # --- Secrets ---------------------------------------------------------
+      # Rotating this invalidates every existing session.
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET - generate with: openssl rand -base64 48}
+
+      # --- Storage ---------------------------------------------------------
+      # 'local' writes to the mounted volume. A single volume with no snapshot
+      # story is a hard ceiling on customer uploads — move to S3-compatible
+      # storage before you have real volume.
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      UPLOAD_DIRECTORY: /uploads
+      NEXT_PUBLIC_UPLOAD_DIRECTORY: /uploads
+
+      # --- Behaviour -------------------------------------------------------
+      # Page titles and which sign-in providers appear. NOT a cloud/billing
+      # switch, despite the name.
+      IS_GENERAL: "true"
+
+      # Closed to the public. Accounts are created by the provisioning service
+      # after payment, through the GENERIC OAuth provider, which bypasses this
+      # flag by design. See packages/provisioning/src/provision/shared-sso.ts.
+      DISABLE_REGISTRATION: ${DISABLE_REGISTRATION:-true}
+
+      # Only "true" if you terminate TLS yourself. Railway terminates for you.
+      NOT_SECURED: "false"
+
+      # --- Single sign-on (the provisioning path) --------------------------
+      POSTIZ_GENERIC_OAUTH: ${POSTIZ_GENERIC_OAUTH:-false}
+      POSTIZ_OAUTH_URL: ${POSTIZ_OAUTH_URL:-}
+      POSTIZ_OAUTH_AUTH_URL: ${POSTIZ_OAUTH_AUTH_URL:-}
+      POSTIZ_OAUTH_TOKEN_URL: ${POSTIZ_OAUTH_TOKEN_URL:-}
+      POSTIZ_OAUTH_USERINFO_URL: ${POSTIZ_OAUTH_USERINFO_URL:-}
+      POSTIZ_OAUTH_CLIENT_ID: ${POSTIZ_OAUTH_CLIENT_ID:-}
+      POSTIZ_OAUTH_CLIENT_SECRET: ${POSTIZ_OAUTH_CLIENT_SECRET:-}
+      NEXT_PUBLIC_POSTIZ_OAUTH_DISPLAY_NAME: ${BRAND_NAME:-Kolo}
+
+      # --- Deliberately NOT set --------------------------------------------
+      # STRIPE_PUBLISHABLE_KEY: setting this turns on the application's own
+      # billing UI and plan enforcement, which collides with ours. Billing runs
+      # beside the app, not inside it. Leaving it unset also means the app
+      # enforces no plan caps — that is our job. See src/limits.ts.
+      #
+      # Telemetry (POSTHOG, SENTRY, DATAFAST, GTM, FACEBOOK_PIXEL): left unset
+      # so no customer data leaves this deployment. If you enable any of them,
+      # list them in your privacy policy as sub-processors.
+
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    volumes:
+      - uploads:/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000 >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  redis:
+    # PINNED BY DIGEST, ON PURPOSE.
+    #
+    # The production deployment inherited `bitnamilegacy/redis:latest` — a
+    # deprecated repository on a floating tag, carrying the queue that makes
+    # scheduled posting work. An upstream change there breaks publishing
+    # silently. This is a maintained image at a fixed digest instead.
+    #
+    # To update deliberately:
+    #   docker pull redis:7.4-alpine
+    #   docker inspect --format='{{index .RepoDigests 0}}' redis:7.4-alpine
+    # then paste the digest here.
+    image: ${REDIS_IMAGE:-redis:7.4-alpine}
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    # Production inherited a TimescaleDB + PostGIS image from a template. The
+    # application uses neither. It is harmless, but it is not worth migrating a
+    # live database to change; new deployments should use plain Postgres.
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localdev}
+      POSTGRES_DB: scheduler
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scheduler"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+  redis:
+  uploads:

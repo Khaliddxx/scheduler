@@ -1,0 +1,13 @@
+{
+  "name": "teal",
+  "note": "Deep teal through cyan to blue. Reads technical and calm; furthest from the reference violet while staying comfortable on a near-black ground.",
+  "colors": {
+    "primary": "#0D9488",
+    "primaryHover": "#14B8A6",
+    "accent": "#2DD4BF",
+    "accentDeep": "#0E7490",
+    "gradientFrom": "#0F766E",
+    "gradientVia": "#0891B2",
+    "gradientTo": "#2563EB"
+  }
+}
