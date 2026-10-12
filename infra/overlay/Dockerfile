@@ -1,8 +1,8 @@
 # Branded application image.
 #
 # Builds YOUR image from a pinned upstream tag plus the codemod in this
-# directory. Nothing is forked and no diff is stored: the branding is re-derived
-# from whatever the pinned source says, every build.
+# directory. Nothing is forked and no diff is stored: the branding is
+# re-derived from whatever the pinned source says, every build.
 #
 #   docker build -f infra/overlay/Dockerfile \
 #     --build-arg UPSTREAM_TAG=v2.11.3 \
@@ -11,13 +11,28 @@
 # Build context is the REPOSITORY ROOT, because the build needs
 # packages/brand/brand.json and infra/overlay/apply-brand.mjs.
 #
+# WHAT RUNS INSIDE
+# ----------------
+# This is not a one-process container. Upstream splits the product across four
+# Node services and fronts them with a reverse proxy:
+#
+#   nginx     :5000   the only published port
+#     /api/  -> :3000 backend   (NestJS)
+#     /      -> :4200 frontend  (Next.js)
+#     /uploads/        served straight off the volume
+#   workers           queue consumer — THIS is what publishes scheduled posts
+#   cron              scheduler ticks
+#
+# Miss the workers process and the app looks completely healthy while silently
+# never publishing anything. That is the failure mode this comment exists to
+# prevent.
+#
 # WHY BUILD AT ALL, RATHER THAN RUN THE PUBLISHED IMAGE?
-# The published image ships compiled CSS and compiled React. Colours and the
-# logo are baked in at build time, so they cannot be overridden by an
-# environment variable at runtime. If you are content with upstream's visual
-# identity and only want your own domain and page titles, skip this file
-# entirely and run the published image — that is the cheapest option and it is
-# a legitimate one. See docs/02-where-to-edit-the-app.md, "Tier 0".
+# The published image ships compiled CSS and compiled React, so colours and the
+# logo are baked in at build time and cannot be overridden by an environment
+# variable at runtime. If you are content with upstream's visual identity and
+# only want your own domain and page titles, run the published image instead —
+# that is cheaper and entirely legitimate. See docs/02-where-to-edit-the-app.md.
 
 # ---------------------------------------------------------------------------
 # Stage 1 — fetch the pinned upstream source
@@ -28,7 +43,6 @@ ARG UPSTREAM_REPO=https://github.com/gitroomhq/postiz-app
 ARG UPSTREAM_TAG=v2.11.3
 
 WORKDIR /src
-# Shallow clone of exactly one tag: fast, and it pins the input precisely.
 RUN git clone --depth 1 --branch "${UPSTREAM_TAG}" "${UPSTREAM_REPO}" app \
     && rm -rf app/.git
 
@@ -52,36 +66,110 @@ RUN node infra/overlay/apply-brand.mjs --target ./app \
 # ---------------------------------------------------------------------------
 FROM node:22-alpine AS build
 
-# The upstream build needs these for sharp/canvas-style native deps.
-RUN apk add --no-cache libc6-compat python3 make g++ git
+# Native deps for sharp and the image pipeline.
+RUN apk add --no-cache libc6-compat python3 make g++ git vips-dev
 
 WORKDIR /app
 COPY --from=branded /work/app ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# The frontend build is the memory-hungry part of this monorepo.
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
+# `dotenv -e ../../.env` prefixes every start script upstream ships. Without a
+# file to read, dotenv exits non-zero and every service dies on boot. Real
+# environment variables still win over an empty file.
+RUN touch .env
+
 RUN corepack enable \
-    && pnpm install --frozen-lockfile --prefer-offline \
-    && pnpm run build \
-    && pnpm prune --prod
+    && pnpm install --frozen-lockfile \
+    && pnpm run prisma-generate \
+    && pnpm run build
 
 # ---------------------------------------------------------------------------
 # Stage 4 — runtime
 # ---------------------------------------------------------------------------
 FROM node:22-alpine AS runtime
 
-RUN apk add --no-cache libc6-compat caddy supervisor \
-    && addgroup -S app && adduser -S app -G app
+RUN apk add --no-cache libc6-compat nginx supervisor vips \
+    && adduser -S -D -H www \
+    && mkdir -p /run/nginx /var/log/supervisor /uploads
 
 WORKDIR /app
-COPY --from=build --chown=app:app /app ./
+COPY --from=build /app ./
+
+# Upstream's own nginx config: it already maps /api/, /uploads/ and / to the
+# right places and forwards the custom headers the app relies on.
+COPY --from=build /app/var/docker/nginx.conf /etc/nginx/nginx.conf
+
+# supervisord owns all five processes. `autorestart=true` matters: a worker that
+# dies takes scheduled publishing with it, and nothing else would notice.
+RUN printf '%s\n' \
+    '[supervisord]' \
+    'nodaemon=true' \
+    'logfile=/dev/stdout' \
+    'logfile_maxbytes=0' \
+    'user=root' \
+    '' \
+    '[program:backend]' \
+    'command=pnpm run start:prod:backend' \
+    'directory=/app' \
+    'autorestart=true' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    '' \
+    '[program:frontend]' \
+    'command=pnpm run start:prod:frontend' \
+    'directory=/app' \
+    'autorestart=true' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    '' \
+    '[program:workers]' \
+    'command=pnpm run start:prod:workers' \
+    'directory=/app' \
+    'autorestart=true' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    '' \
+    '[program:cron]' \
+    'command=pnpm run start:prod:cron' \
+    'directory=/app' \
+    'autorestart=true' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    '' \
+    '[program:nginx]' \
+    'command=nginx -g "daemon off;"' \
+    'autorestart=true' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    > /etc/supervisord.conf
+
+# Push the schema before anything starts, then hand over to supervisord.
+RUN printf '%s\n' \
+    '#!/bin/sh' \
+    'set -e' \
+    'echo "[entrypoint] syncing database schema"' \
+    'pnpm run prisma-db-push' \
+    'echo "[entrypoint] starting services"' \
+    'exec supervisord -c /etc/supervisord.conf' \
+    > /entrypoint.sh && chmod +x /entrypoint.sh
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NOT_SECURED=false
 
-# Carries the brand identity into the image so a running container can be
-# identified without shelling in, and so a smoke test can assert on it.
 ARG UPSTREAM_TAG=v2.11.3
 LABEL org.opencontainers.image.title="Branded social scheduler"
 LABEL org.opencontainers.image.source="https://github.com/Khaliddxx/scheduler"
@@ -92,8 +180,9 @@ LABEL app.upstream.tag="${UPSTREAM_TAG}"
 # Corresponding Source of the MODIFIED version. The manifest records exactly
 # what was modified; the repository above carries the codemod that made the
 # modification. Keep both.
-COPY --from=branded --chown=app:app /work/app/.brand-manifest.json ./.brand-manifest.json
+COPY --from=branded /work/app/.brand-manifest.json ./.brand-manifest.json
 
-USER app
+# nginx listens here; it is the only port that should be published.
 EXPOSE 5000
-CMD ["pnpm", "run", "start:prod"]
+
+CMD ["/entrypoint.sh"]
