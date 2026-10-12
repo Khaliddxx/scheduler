@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { cn } from '@/lib/cn';
 import { Section, SectionHeading } from '@/components/ui/section';
+import { Underline } from '@/components/ui/doodles';
 import { capabilities, type Capability } from '@/content/features';
 import { VideoFrame } from '@/components/ui/video-frame';
 
@@ -101,7 +102,12 @@ export function Capabilities() {
       <div className="shell">
         <SectionHeading
           eyebrow={HEADING.eyebrow}
-          title={HEADING.title}
+          title={
+            <>
+              {HEADING.title}
+              <Underline className="mx-auto mt-2 h-4 w-[260px] text-[color:var(--primary)]" />
+            </>
+          }
           body={HEADING.body}
         />
 

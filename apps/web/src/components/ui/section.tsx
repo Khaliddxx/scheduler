@@ -22,7 +22,7 @@ export function Section({
   return (
     <section
       id={id}
-      className={cn(tight ? 'py-14 sm:py-16' : 'py-20 sm:py-28', className)}
+      className={cn(tight ? 'py-10 sm:py-12' : 'py-16 sm:py-20 lg:py-24', className)}
     >
       {children}
     </section>

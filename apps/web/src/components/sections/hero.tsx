@@ -3,6 +3,8 @@ import { brand, registerUrl } from '@scheduler/brand';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
 import { ChannelIcon } from '@/components/ui/channel-icon';
+import { ModeToggle } from '@/components/ui/mode-toggle';
+import { Sparkle, Squiggle } from '@/components/ui/doodles';
 import { sellableChannels as channels, channelCount, type Channel } from '@/content/channels';
 import { TRIAL_DAYS } from '@/content/pricing';
 
@@ -59,7 +61,7 @@ export function Hero() {
       */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 h-[620px] w-[min(1100px,120%)] -translate-x-1/2"
+        className="pointer-events-none absolute left-1/2 top-0 h-[620px] w-[min(1100px,100%)] -translate-x-1/2"
       >
         <div
           className="drift h-full w-full"
@@ -70,7 +72,22 @@ export function Hero() {
         />
       </div>
 
-      <div className="shell relative flex flex-col items-center pb-16 pt-14 text-center sm:pb-20 sm:pt-24 lg:pb-24 lg:pt-28">
+      {/*
+        Bottom padding is deliberately short: the gradient showcase panel sits
+        directly under this section and the two read as one composition, with
+        roughly 40px between the toggle and the panel's top edge.
+      */}
+      <div className="shell relative flex flex-col items-center pb-8 pt-14 text-center sm:pb-10 sm:pt-24 lg:pt-28">
+        {/*
+          Hand-drawn marks in the dead space either side of the headline:
+          squiggle lower-left, sparkle upper-right. Desktop only — below lg
+          there is no dead space, and a mark crossing the text is worse than
+          none. Both components set aria-hidden and pointer-events-none, and
+          they sit outside `.stagger` so they do not join the entrance.
+        */}
+        <Squiggle className="absolute left-0 top-[300px] hidden w-[180px] -translate-x-[28%] text-white opacity-70 lg:block xl:w-[250px]" />
+        <Sparkle className="absolute right-2 top-[150px] hidden h-11 w-11 text-white lg:block xl:right-6" />
+
         <div className="stagger flex w-full flex-col items-center">
           <ul style={{ "--i": 0 } as CSSProperties} className="flex flex-wrap items-center justify-center gap-2">
             {credibility.map((chip) => (
@@ -142,6 +159,15 @@ export function Hero() {
                 ))}
               </div>
             ))}
+          </div>
+
+          {/*
+            Mode switch. A client component, imported into this Server
+            Component; the wrapper carries the stagger index because the
+            switch owns its own class list.
+          */}
+          <div style={{ '--i': 5 } as CSSProperties} className="mt-10 sm:mt-12">
+            <ModeToggle left="I need agentic scheduling" right="I need classic scheduling" />
           </div>
         </div>
       </div>

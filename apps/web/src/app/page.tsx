@@ -4,6 +4,7 @@ import { channelCount } from '@/content/channels';
 import { homeFaqs } from '@/content/faq';
 
 import { Hero } from '@/components/sections/hero';
+import { ShowcasePanel } from '@/components/sections/showcase-panel';
 import { TrustBar } from '@/components/sections/trust-bar';
 import { StatMarquee } from '@/components/sections/stat-marquee';
 import { Audiences } from '@/components/sections/audiences';
@@ -71,6 +72,7 @@ export default function HomePage() {
         sliding upward reads as a template — they fade only.
       */}
       <Hero />
+      <ShowcasePanel />
       <StatMarquee />
       <TrustBar />
       <Reveal>

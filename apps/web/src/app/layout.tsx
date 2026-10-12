@@ -3,6 +3,7 @@ import { DM_Sans, Plus_Jakarta_Sans } from 'next/font/google';
 import { brand, siteUrl } from '@scheduler/brand';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { SupportPill } from '@/components/layout/support-pill';
 import { reportPlaceholders } from '@/lib/guards';
 import './globals.css';
 
@@ -72,6 +73,7 @@ export default function RootLayout({
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <SupportPill />
       </body>
     </html>
   );
