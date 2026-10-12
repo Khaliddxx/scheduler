@@ -12,6 +12,7 @@ import { ChannelGrid } from '@/components/sections/channel-grid';
 import { Testimonials } from '@/components/sections/testimonials';
 import { Faq } from '@/components/sections/faq';
 import { CtaBand } from '@/components/sections/cta-band';
+import { Reveal } from '@/components/ui/reveal';
 
 export const metadata: Metadata = {
   title: `${brand.name} — ${brand.tagline}`,
@@ -63,15 +64,34 @@ export default function HomePage() {
         // Serialised server-side from a literal we control; no user input reaches it.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/*
+        The hero animates itself on load; everything below enters on scroll.
+        `distance="none"` on the wide bento sections because a large block
+        sliding upward reads as a template — they fade only.
+      */}
       <Hero />
       <TrustBar />
-      <Audiences />
-      <Integrations />
-      <Capabilities />
-      <ChannelGrid />
-      <Testimonials />
-      <Faq items={homeFaqs} title="Questions, answered" id="faq" />
-      <CtaBand />
+      <Reveal>
+        <Audiences />
+      </Reveal>
+      <Reveal distance="none">
+        <Integrations />
+      </Reveal>
+      <Reveal distance="none">
+        <Capabilities />
+      </Reveal>
+      <Reveal>
+        <ChannelGrid />
+      </Reveal>
+      <Reveal>
+        <Testimonials />
+      </Reveal>
+      <Reveal>
+        <Faq items={homeFaqs} title="Questions, answered" id="faq" />
+      </Reveal>
+      <Reveal>
+        <CtaBand />
+      </Reveal>
     </>
   );
 }

@@ -34,7 +34,7 @@ function ChannelTile({ channel }: { channel: Channel }) {
         href={`/channels/${channel.slug}`}
         className="card flex h-full flex-col gap-3.5 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-hairline-strong sm:gap-4 sm:p-5"
       >
-        <ChannelIcon channel={channel} size={38} />
+        <ChannelIcon channel={channel} size={38} className="tile-hover" />
         <span className="flex flex-col gap-1.5">
           <span className="text-body-sm font-medium text-white">{channel.name}</span>
           {/* Two lines, so a long blurb cannot make one tile taller than its row. */}

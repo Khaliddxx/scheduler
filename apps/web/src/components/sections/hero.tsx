@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { brand, registerUrl } from '@scheduler/brand';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
@@ -48,19 +49,30 @@ export function Hero() {
 
   return (
     <section className="relative isolate">
-      {/* Single soft violet glow sitting behind the headline. */}
+      {/*
+        Ambient glow behind the headline.
+
+        Two nested elements on purpose: the OUTER one owns the centring
+        translate, the INNER one owns the drift animation. Put both on one
+        element and the animation's `transform` replaces the centring outright,
+        and the glow slides off to one side.
+      */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[min(1080px,100%)] -translate-x-1/2"
-        style={{
-          backgroundImage:
-            'radial-gradient(50% 50% at 50% 45%, color-mix(in srgb, var(--primary) 40%, transparent), transparent 70%)',
-        }}
-      />
+        className="pointer-events-none absolute left-1/2 top-0 h-[620px] w-[min(1100px,120%)] -translate-x-1/2"
+      >
+        <div
+          className="drift h-full w-full"
+          style={{
+            backgroundImage:
+              'radial-gradient(45% 46% at 50% 42%, color-mix(in srgb, var(--primary) 34%, transparent), transparent 72%)',
+          }}
+        />
+      </div>
 
       <div className="shell relative flex flex-col items-center pb-16 pt-14 text-center sm:pb-20 sm:pt-24 lg:pb-24 lg:pt-28">
-        <div className="flex w-full animate-fade-up flex-col items-center">
-          <ul className="flex flex-wrap items-center justify-center gap-2">
+        <div className="stagger flex w-full flex-col items-center">
+          <ul style={{ "--i": 0 } as CSSProperties} className="flex flex-wrap items-center justify-center gap-2">
             {credibility.map((chip) => (
               <li
                 key={chip}
@@ -77,16 +89,16 @@ export function Hero() {
             (NEXT_PUBLIC_BRAND_TAGLINE): a single long word at 40px would
             otherwise push the page wider than a 390px viewport.
           */}
-          <h1 className="mx-auto mt-7 max-w-[19ch] break-words font-display text-[40px] font-extrabold leading-[1.06] tracking-[-0.02em] text-white sm:mt-8 sm:text-display-md sm:font-extrabold md:text-display-lg md:font-extrabold lg:text-display-xl">
+          <h1 style={{ "--i": 1 } as CSSProperties} className="mx-auto mt-7 max-w-[19ch] break-words font-display text-[40px] font-extrabold leading-[1.06] tracking-[-0.02em] text-white sm:mt-8 sm:text-display-md sm:font-extrabold md:text-display-lg md:font-extrabold lg:text-display-xl">
             {lead ? `${lead} ` : null}
             <span className="text-gradient inline sm:inline-block">{closing}</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-[54ch] text-body-md text-muted">
+          <p style={{ "--i": 2 } as CSSProperties} className="mx-auto mt-6 max-w-[54ch] text-body-md text-muted">
             {brand.description}
           </p>
 
-          <div className="mt-9 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
+          <div style={{ "--i": 3 } as CSSProperties} className="mt-9 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
             <Button
               href={registerUrl()}
               external
@@ -102,12 +114,14 @@ export function Hero() {
           </div>
 
           {/*
-            The tiles carry the network's initial, not its name, so they say
-            nothing useful to a screen reader — the secondary call to action
-            above and the band below name the networks in text instead.
+            Decorative: the marks are the networks' own trademarks shown to
+            signal breadth, and they carry no text. The secondary call to
+            action above and the band below name the networks properly, so
+            hiding this from assistive tech loses nothing.
           */}
           <div
             aria-hidden
+            style={{ '--i': 4 } as CSSProperties}
             className="mt-14 flex w-full max-w-[680px] flex-col gap-2.5 sm:mt-16 sm:gap-3"
           >
             {tileRows.map((row, index) => (
@@ -119,7 +133,12 @@ export function Hero() {
                 )}
               >
                 {row.map((channel) => (
-                  <ChannelIcon key={channel.slug} channel={channel} size={44} />
+                  <ChannelIcon
+                    key={channel.slug}
+                    channel={channel}
+                    size={44}
+                    className="tile-hover"
+                  />
                 ))}
               </div>
             ))}

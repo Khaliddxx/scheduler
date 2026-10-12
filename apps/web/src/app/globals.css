@@ -142,6 +142,51 @@
     mask-image: linear-gradient(to bottom, transparent, black 6%, black 94%, transparent);
   }
 
+
+  /*
+   * Hero entrance.
+   *
+   * One orchestrated sequence on load rather than effects scattered down the
+   * page. Each child declares its own position with --i and inherits the
+   * timing, so the rhythm stays even if an element is added or removed.
+   *
+   * Everything begins at its resting state and the animation plays BACKWARDS
+   * from it (`animation-fill-mode: both` plus a from-state), so the page is
+   * complete if the animation never runs — a crawler, a reduced-motion
+   * viewer, or the frame before paint all see finished content.
+   */
+  .stagger > * {
+    animation: riseIn 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stagger > * {
+      animation: none;
+    }
+  }
+
+  /* A tile that lifts and brightens its hairline when pointed at. */
+  .tile-hover {
+    transition:
+      transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 320ms ease;
+  }
+  .tile-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  }
+
+  /* Slow drift for the ambient glow behind the headline. */
+  .drift {
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .drift {
+      animation: none;
+    }
+  }
+
   /* Pause marquees on hover so a reader can actually read a card. */
   .marquee-track:hover {
     animation-play-state: paused;
@@ -161,5 +206,26 @@
   .scrollbar-slim::-webkit-scrollbar-thumb {
     background-color: var(--border);
     border-radius: 9999px;
+  }
+}
+
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-3%, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
   }
 }
