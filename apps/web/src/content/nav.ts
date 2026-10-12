@@ -83,3 +83,48 @@ export const footerColumns: FooterColumn[] = [
     ],
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Mega-menu                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The agent/integration menu.
+ *
+ * A wide three-column panel rather than a short list, because breadth IS the
+ * pitch here: the point of the menu is that a visitor sees twenty-odd names
+ * they recognise and concludes "it works with what I already use" before
+ * reading a word of copy.
+ */
+export interface MenuItem {
+  label: string;
+  href: string;
+  /** Key resolved to a glyph by components/ui/integration-glyph.tsx. */
+  glyph: string;
+}
+
+export const agentMenu: MenuItem[] = [
+  { label: 'Claude', href: '/integrations/claude', glyph: 'claude' },
+  { label: 'ChatGPT', href: '/integrations/chatgpt', glyph: 'openai' },
+  { label: 'Claude Code', href: '/integrations/claude-code', glyph: 'terminal' },
+  { label: 'Codex', href: '/integrations/codex', glyph: 'openai' },
+  { label: 'Cursor', href: '/integrations/cursor', glyph: 'cursor' },
+  { label: 'Gemini', href: '/integrations/gemini', glyph: 'sparkle' },
+  { label: 'MCP server', href: '/developers#mcp', glyph: 'plug' },
+  { label: 'Command line', href: '/developers#cli', glyph: 'terminal' },
+  { label: 'Public API', href: '/developers#api', glyph: 'braces' },
+  { label: 'Webhooks', href: '/developers#webhooks', glyph: 'webhook' },
+  { label: 'n8n', href: '/integrations/n8n', glyph: 'workflow' },
+  { label: 'Make.com', href: '/integrations/make', glyph: 'workflow' },
+  { label: 'Zapier', href: '/integrations/zapier', glyph: 'bolt' },
+  { label: 'RSS feeds', href: '/integrations/rss', glyph: 'rss' },
+  { label: 'Agent CLI', href: '/developers#cli', glyph: 'braces' },
+];
+
+/** Secondary column in the Resources menu. */
+export const resourceMenu: MenuItem[] = [
+  { label: 'Documentation', href: '/docs', glyph: 'book' },
+  { label: 'Compare', href: '/compare', glyph: 'scales' },
+  { label: 'Open source', href: '/open-source', glyph: 'code' },
+  { label: 'For agencies', href: '/agencies', glyph: 'users' },
+];
