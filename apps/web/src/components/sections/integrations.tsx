@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Section, SectionHeading } from '@/components/ui/section';
+import { Circled } from '@/components/ui/doodles';
+import { VideoFrame } from '@/components/ui/video-frame';
 import { agentIntegrations } from '@/content/features';
 import { primaryNav } from '@/content/nav';
 
@@ -28,7 +30,18 @@ const developers = primaryNav
  * heading has no content home yet, so it sits here as a named constant rather
  * than buried in the markup — moving it into content later is a one-line change.
  */
-const TITLE = 'Drive it from whatever you already use';
+const TITLE = (
+  <>
+    Drive it from whatever you{' '}
+    {/* `isolate` scopes the ring's negative z-index to this span, so it sits
+        behind the word but above whatever the section is drawn on. */}
+    <span className="relative isolate inline-block">
+      <Circled className="absolute -inset-x-3 -inset-y-2 -z-10 text-accent" />
+      already
+    </span>{' '}
+    use
+  </>
+);
 
 type GlyphKey = 'mcp' | 'cli' | 'api' | 'automations' | 'rss' | 'webhooks';
 
@@ -143,6 +156,17 @@ export function Integrations() {
                 {item.name}
               </h3>
               <p className="mt-4 max-w-[46ch] text-body-md text-white/75">{item.body}</p>
+
+              {item.clip ? (
+                <div className="-mx-2 mt-8 overflow-hidden rounded-card sm:-mx-3">
+                  <VideoFrame
+                    name={item.clip}
+                    ratio={item.ratio}
+                    label={`${item.name} in use`}
+                    fallback={<></>}
+                  />
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>
