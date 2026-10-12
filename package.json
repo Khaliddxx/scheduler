@@ -14,5 +14,13 @@
     "lint": "pnpm --filter @scheduler/web lint",
     "typecheck": "pnpm -r typecheck",
     "brand:apply": "node infra/overlay/apply-brand.mjs"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.23",
+      "postcss-selector-parser": ">=7.1.6",
+      "sharp": ">=0.35.5",
+      "chokidar": ">=4.0.3"
+    }
   }
 }
