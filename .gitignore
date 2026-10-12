@@ -13,3 +13,11 @@ coverage/
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Reference footage for local preview only.
+#
+# Drop third-party or scratch media here to judge a layout in place; it is
+# never committed and never deployed. Your own recordings belong in
+# apps/web/public/media/, which IS tracked.
+apps/web/public/preview/*
+!apps/web/public/preview/.gitkeep
