@@ -23,17 +23,17 @@ type MockProps = { className?: string };
 /**
  * Which preview clip fills each card, and how tall the slot is.
  *
- * The file itself lives in `public/preview/`, which is gitignored — see
+ * The file itself lives in `public/preview/` — see that folder's README and
  * components/ui/video-frame.tsx. With nothing there the card renders a quiet
- * empty slot rather than a broken player, so the deployed site is clean while
- * a local checkout can show real footage in place.
+ * empty slot rather than a broken player, so a missing file costs a frame of
+ * footage and nothing else.
  */
 const slots: Record<Capability['visual'], { clip: string; ratio: string; label: string }> = {
   calendar: { clip: 'scheduling', ratio: '1396 / 722', label: 'A week in the calendar' },
-  agents: { clip: 'claude-mcp', ratio: '1320 / 920', label: 'An agent drafting posts' },
+  agents: { clip: 'ai-agents', ratio: '900 / 722', label: 'Every assistant that can drive the calendar' },
   editor: { clip: 'design-ai', ratio: '1396 / 1000', label: 'The image editor' },
   team: { clip: '3', ratio: '900 / 738', label: 'Roles and approvals' },
-  plugs: { clip: 'grok-bot', ratio: '1282 / 892', label: 'Automations firing' },
+  plugs: { clip: '4', ratio: '1396 / 796', label: 'A post previewed in place' },
   analytics: { clip: '5', ratio: '1396 / 1200', label: 'Analytics across channels' },
 };
 

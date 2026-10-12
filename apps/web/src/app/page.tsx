@@ -8,6 +8,7 @@ import { ShowcasePanel } from '@/components/sections/showcase-panel';
 import { TrustBar } from '@/components/sections/trust-bar';
 import { StatMarquee } from '@/components/sections/stat-marquee';
 import { Audiences } from '@/components/sections/audiences';
+import { Assistants } from '@/components/sections/assistants';
 import { Integrations } from '@/components/sections/integrations';
 import { Capabilities } from '@/components/sections/capabilities';
 import { ChannelGrid } from '@/components/sections/channel-grid';
@@ -31,7 +32,8 @@ export const metadata: Metadata = {
  *   Hero          what it is, in one sentence, with the proof visible
  *   TrustBar      the breadth claim, shown rather than asserted
  *   Audiences     who it is for — lets a visitor self-select in or out fast
- *   Integrations  the differentiator, placed before the table stakes
+ *   Assistants    the differentiator: drive it from ChatGPT, Claude, a terminal
+ *   Integrations  the plumbing behind that — API, MCP, webhooks, automations
  *   Capabilities  the table stakes, in depth, for someone now evaluating
  *   ChannelGrid   the breadth claim again, now as a browsable directory
  *   Testimonials  proof, once there is something to be persuaded of
@@ -77,6 +79,9 @@ export default function HomePage() {
       <TrustBar />
       <Reveal>
         <Audiences />
+      </Reveal>
+      <Reveal distance="none">
+        <Assistants />
       </Reveal>
       <Reveal distance="none">
         <Integrations />

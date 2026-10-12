@@ -14,10 +14,8 @@ coverage/
 next-env.d.ts
 *.tsbuildinfo
 
-# Reference footage for local preview only.
-#
-# Drop third-party or scratch media here to judge a layout in place; it is
-# never committed and never deployed. Your own recordings belong in
-# apps/web/public/media/, which IS tracked.
+# Reference footage slot. Ignored by default so third-party media cannot be
+# committed by accident; see apps/web/public/preview/README.md for how the
+# slot works and how to opt a file in deliberately.
 apps/web/public/preview/*
-!apps/web/public/preview/.gitkeep
+!apps/web/public/preview/README.md

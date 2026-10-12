@@ -1,44 +1,23 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
+import { previewClip, previewPoster } from '@/lib/preview-media';
+
+export { previewMediaPresent } from '@/lib/preview-media';
 
 /**
  * A framed media slot that falls back cleanly when the file is absent.
  *
- * HOW THIS WORKS
- * --------------
  * This is a Server Component, so it can look at the filesystem at build time.
- * If `public/preview/<name>.webm` exists, it renders a real looping video. If
- * it does not, it renders whatever `fallback` you passed — no broken player,
- * no 404 in the console, no layout shift.
+ * If `public/preview/<name>.webm` exists, it renders a real looping video, with
+ * `<name>.webp|jpg` as its poster when one is there. If it does not, it renders
+ * whatever `fallback` you passed — no broken player, no 404 in the console, no
+ * layout shift.
  *
- * WHY IT IS BUILT THIS WAY
- * ------------------------
- * `public/preview/` is gitignored. That makes it a scratch area for reference
- * footage while you are deciding what each section should look like: drop
- * files in, run the site, judge it in real layout — and nothing you drop there
- * can be committed or deployed by accident.
- *
- * When you have your own recordings, move them out of `preview/` into
- * `public/media/` and point `src` at that instead. That directory IS tracked,
- * because by then the footage is yours.
+ * What is in `public/preview/` right now, and the rules around it, are in that
+ * folder's README. In short: reference footage, to be replaced with your own
+ * recordings under the same filenames; the build guard in lib/guards.ts refuses
+ * a launch build while any of it remains.
  */
-
-const PREVIEW_DIR = path.join(process.cwd(), 'public', 'preview');
-
-const hasPreview = (name: string): string | null => {
-  for (const ext of ['webm', 'mp4']) {
-    const file = `${name}.${ext}`;
-    try {
-      if (fs.existsSync(path.join(PREVIEW_DIR, file))) return `/preview/${file}`;
-    } catch {
-      /* no filesystem access at runtime; fall through to the fallback */
-    }
-  }
-  return null;
-};
-
 export function VideoFrame({
   name,
   fallback,
@@ -53,7 +32,7 @@ export function VideoFrame({
   ratio?: string;
   label?: string;
 }) {
-  const src = hasPreview(name);
+  const src = previewClip(name);
 
   if (!src) {
     if (fallback) return <>{fallback}</>;
@@ -81,6 +60,7 @@ export function VideoFrame({
       className={cn('w-full rounded-[14px] shadow-hairline', className)}
       style={{ aspectRatio: ratio }}
       src={src}
+      poster={previewPoster(name) ?? undefined}
       autoPlay
       loop
       muted
@@ -91,12 +71,3 @@ export function VideoFrame({
     />
   );
 }
-
-/** True when any preview footage is present. Used to show the build banner. */
-export const previewMediaPresent = (): boolean => {
-  try {
-    return fs.existsSync(PREVIEW_DIR) && fs.readdirSync(PREVIEW_DIR).some((f) => /\.(webm|mp4)$/.test(f));
-  } catch {
-    return false;
-  }
-};

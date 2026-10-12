@@ -1,4 +1,38 @@
-import { VideoFrame } from '@/components/ui/video-frame';
+import { ModeShowcase, type ShowcaseClip } from '@/components/ui/mode-showcase';
+import type { Mode } from '@/lib/mode';
+import { previewClip, previewPoster } from '@/lib/preview-media';
+
+/**
+ * Which clip each hero mode shows. Resolved on the server so the client only
+ * ever receives paths that exist; a missing file simply drops that mode.
+ */
+const resolveClips = (): Partial<Record<Mode, ShowcaseClip>> => {
+  const out: Partial<Record<Mode, ShowcaseClip>> = {};
+
+  const agentic = previewClip('hero-agentic');
+  if (agentic) {
+    out.agentic = {
+      src: agentic,
+      poster: previewPoster('hero-agentic') ?? undefined,
+      ratio: '1920 / 1018',
+      title: 'Tell it what you want to publish',
+      caption: 'via your assistant',
+    };
+  }
+
+  const classic = previewClip('scheduling');
+  if (classic) {
+    out.classic = {
+      src: classic,
+      poster: previewPoster('scheduling') ?? undefined,
+      ratio: '1396 / 722',
+      title: 'Plan the week yourself, in one calendar',
+      caption: 'every channel, one view',
+    };
+  }
+
+  return out;
+};
 
 /**
  * The gradient showcase that sits directly under the hero.
@@ -21,6 +55,9 @@ import { VideoFrame } from '@/components/ui/video-frame';
  *   angle so the left edge reads cool and the right edge warm.
  */
 export function ShowcasePanel() {
+  const clips = resolveClips();
+  const hasFootage = Boolean(clips.agentic || clips.classic);
+
   return (
     <section aria-labelledby="showcase-heading" className="shell">
       <div
@@ -47,25 +84,33 @@ export function ShowcasePanel() {
           }}
         />
 
-        <h2
-          id="showcase-heading"
-          className="max-w-[20ch] font-display text-[28px] font-semibold leading-[1.1] tracking-[-0.01em] text-white sm:text-display-sm"
-        >
-          Tell it what you want to publish
-        </h2>
+        {hasFootage ? (
+          <ModeShowcase clips={clips} />
+        ) : (
+          <>
+            <h2
+              id="showcase-heading"
+              className="max-w-[20ch] font-display text-[28px] font-semibold leading-[1.1] tracking-[-0.01em] text-white sm:text-display-sm"
+            >
+              Tell it what you want to publish
+            </h2>
 
-        <p className="mt-auto pt-10 text-body-lg text-white/70 sm:pt-16">via your assistant</p>
+            <p className="mt-auto pt-10 text-body-lg text-white/70 sm:pt-16">via your assistant</p>
 
-        <div className="-mb-4 mt-4 w-full max-w-[820px] sm:-mb-5 sm:mt-5">
-          <div className="overflow-hidden rounded-[14px] shadow-lift">
-            <VideoFrame
-              name="hero-agentic"
-              ratio="1920 / 1018"
-              label="A week planned by an agent"
-              className="block w-full"
-            />
-          </div>
-        </div>
+            <div className="-mb-4 mt-4 w-full max-w-[820px] sm:-mb-5 sm:mt-5">
+              <div
+                className="flex items-center justify-center rounded-[14px] bg-black/20 shadow-lift"
+                style={{ aspectRatio: '1920 / 1018' }}
+              >
+                <span className="px-6 text-center text-body-xs leading-relaxed text-white/50">
+                  A week planned by an agent
+                  <br />
+                  <span className="text-white/30">drop hero-agentic.webm into public/preview/</span>
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

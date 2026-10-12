@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Section, SectionHeading } from '@/components/ui/section';
 import { Circled } from '@/components/ui/doodles';
+import { VideoFrame } from '@/components/ui/video-frame';
 import { agentIntegrations } from '@/content/features';
 import { primaryNav } from '@/content/nav';
 
@@ -155,6 +156,17 @@ export function Integrations() {
                 {item.name}
               </h3>
               <p className="mt-4 max-w-[46ch] text-body-md text-white/75">{item.body}</p>
+
+              {item.clip ? (
+                <div className="-mx-2 mt-8 overflow-hidden rounded-card sm:-mx-3">
+                  <VideoFrame
+                    name={item.clip}
+                    ratio={item.ratio}
+                    label={`${item.name} in use`}
+                    fallback={<></>}
+                  />
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>

@@ -47,6 +47,9 @@ export interface AgentIntegration {
   tone: string;
   /** Larger cards span two columns in the bento. */
   wide?: boolean;
+  /** Optional footage under the copy: a clip name in public/preview/ and its aspect ratio. */
+  clip?: string;
+  ratio?: string;
 }
 
 export const agentIntegrations: AgentIntegration[] = [
@@ -69,6 +72,8 @@ export const agentIntegrations: AgentIntegration[] = [
     name: 'Public REST API',
     body:
       'Create, update and publish posts programmatically, and subscribe to webhooks when something goes out or fails.',
+    clip: 'api',
+    ratio: '1650 / 700',
     tone: 'from-[#4C27E1] to-[#260091]',
   },
   {

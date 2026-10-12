@@ -3,7 +3,7 @@ import { brand, registerUrl } from '@scheduler/brand';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
 import { ChannelIcon } from '@/components/ui/channel-icon';
-import { ModeToggle } from '@/components/ui/mode-toggle';
+import { HeroModeToggle } from '@/components/sections/hero-mode-toggle';
 import { Sparkle, Squiggle } from '@/components/ui/doodles';
 import { sellableChannels as channels, channelCount, type Channel } from '@/content/channels';
 import { TRIAL_DAYS } from '@/content/pricing';
@@ -164,10 +164,11 @@ export function Hero() {
           {/*
             Mode switch. A client component, imported into this Server
             Component; the wrapper carries the stagger index because the
-            switch owns its own class list.
+            switch owns its own class list. It publishes to lib/mode.ts, which
+            the showcase panel under the hero reads.
           */}
           <div style={{ '--i': 5 } as CSSProperties} className="mt-10 sm:mt-12">
-            <ModeToggle left="I need agentic scheduling" right="I need classic scheduling" />
+            <HeroModeToggle />
           </div>
         </div>
       </div>
