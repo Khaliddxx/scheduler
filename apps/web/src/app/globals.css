@@ -229,3 +229,73 @@
     transform: translate3d(3%, 2%, 0) scale(1.08);
   }
 }
+
+
+/* ------------------------------------------------------------------ */
+/* Product-mockup motion                                               */
+/*                                                                     */
+/* The mockups inside the feature cards animate rather than sitting     */
+/* still. Each is a loop on a long cycle so a card that scrolls past    */
+/* is caught mid-motion rather than always restarting, which is what    */
+/* makes a page feel alive instead of staged.                          */
+/* ------------------------------------------------------------------ */
+
+@keyframes chipIn {
+  0%, 6% { opacity: 0; transform: translate3d(0, 6px, 0) scale(0.96); }
+  14%, 92% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translate3d(0, -4px, 0); }
+}
+
+@keyframes msgIn {
+  0%, 8% { opacity: 0; transform: translate3d(0, 8px, 0); }
+  18%, 90% { opacity: 1; transform: none; }
+  100% { opacity: 0; }
+}
+
+@keyframes typing {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+@keyframes drawLine {
+  from { stroke-dashoffset: var(--len, 300); }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes toggleOn {
+  0%, 20% { transform: translateX(0); }
+  35%, 100% { transform: translateX(14px); }
+}
+
+@keyframes toggleTrack {
+  0%, 20% { background-color: rgba(255, 255, 255, 0.14); }
+  35%, 100% { background-color: var(--primary); }
+}
+
+@keyframes swatchIn {
+  0%, 10% { opacity: 0; transform: scale(0.9); }
+  22%, 100% { opacity: 1; transform: none; }
+}
+
+@keyframes cursorBlink {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0; }
+}
+
+@keyframes scanCrop {
+  0%, 15% { transform: translateX(0); }
+  50% { transform: translateX(26px); }
+  85%, 100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * Everything above is decorative. Switching it off entirely is correct —
+   * the mockups are legible at rest, which is why each animation ends at its
+   * resting state rather than starting from one.
+   */
+  [class*='anim-'],
+  [class*='anim-'] * {
+    animation: none !important;
+  }
+}
