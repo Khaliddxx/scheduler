@@ -5,6 +5,7 @@ import { homeFaqs } from '@/content/faq';
 
 import { Hero } from '@/components/sections/hero';
 import { TrustBar } from '@/components/sections/trust-bar';
+import { StatMarquee } from '@/components/sections/stat-marquee';
 import { Audiences } from '@/components/sections/audiences';
 import { Integrations } from '@/components/sections/integrations';
 import { Capabilities } from '@/components/sections/capabilities';
@@ -70,6 +71,7 @@ export default function HomePage() {
         sliding upward reads as a template — they fade only.
       */}
       <Hero />
+      <StatMarquee />
       <TrustBar />
       <Reveal>
         <Audiences />
