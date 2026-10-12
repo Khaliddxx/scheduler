@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "description": "Commercial front-end, billing sidecar and branded deployment for a self-hosted social scheduling platform.",
   "packageManager": "pnpm@10.28.0",
-  "engines": { "node": ">=20.0.0" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "pnpm --filter @scheduler/web dev",
     "build": "pnpm --filter @scheduler/web build",
