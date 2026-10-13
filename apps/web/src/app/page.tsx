@@ -5,7 +5,6 @@ import { homeFaqs } from '@/content/faq';
 
 import { Hero } from '@/components/sections/hero';
 import { ShowcasePanel } from '@/components/sections/showcase-panel';
-import { TrustBar } from '@/components/sections/trust-bar';
 import { StatMarquee } from '@/components/sections/stat-marquee';
 import { Audiences } from '@/components/sections/audiences';
 import { Assistants } from '@/components/sections/assistants';
@@ -30,8 +29,7 @@ export const metadata: Metadata = {
  *
  *   Hero           what it is, with the assistant it runs from cycling in the headline
  *   ShowcasePanel  agentic / classic toggle over the product footage
- *   StatMarquee    outcome cards (placeholders until there are real results)
- *   TrustBar       the breadth claim, shown rather than asserted
+ *   StatMarquee    what each network can be sent, as two counter-scrolling rows
  *   Audiences      who it is for
  *   InAction       the product demo
  *   Assistants     drive it from ChatGPT, Claude, a terminal; and automation
@@ -75,7 +73,6 @@ export default function HomePage() {
       <Hero />
       <ShowcasePanel />
       <StatMarquee />
-      <TrustBar />
       <Audiences />
       <InAction />
       <Assistants />
