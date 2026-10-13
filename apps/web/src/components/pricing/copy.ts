@@ -1,19 +1,25 @@
 import { channelCount } from '@/content/channels';
-import { TRIAL_DAYS } from '@/content/pricing';
+import { plans, popularPlan, TRIAL_DAYS, yearlySavingPct } from '@/content/pricing';
+import { money } from '@/components/pricing/price';
+
+/** The lowest published monthly price, for the headline. Quoted plans (0) are skipped. */
+const entryPlan = plans
+  .filter((p) => p.monthly > 0)
+  .reduce<(typeof plans)[number] | undefined>((min, p) => (!min || p.monthly < min.monthly ? p : min), undefined);
+const fromPrice = entryPlan ? money(entryPlan.monthly, entryPlan.currency) : null;
 
 /**
  * Page chrome for /pricing.
  *
  * Everything that is data — plan names, prices, bullets, the comparison matrix,
  * the FAQ — resolves from src/content. What is left is the page's own furniture:
- * a headline, a column label, a ribbon, four reassurance lines. None of it has a
+ * a headline, a few labels, a badge, four reassurance lines. None of it has a
  * content home yet, so it sits here as one named module rather than being
  * scattered through the markup, which makes moving it into src/content later a
- * one-file change (the same arrangement as the HEADING constant in
- * components/sections/capabilities.tsx).
+ * one-file change.
  *
- * Every number is computed, never typed: the trial length and the channel count
- * come from content, so changing either updates this page with them.
+ * Every number is computed, never typed: the trial length, the channel count and
+ * the yearly saving come from content, so changing any of them updates this page.
  *
  * NOTE ON PAYMENTS. No line here names a payment provider, and no call to action
  * points at a checkout URL — plan CTAs go to the application's own sign-up. The
@@ -23,30 +29,29 @@ import { TRIAL_DAYS } from '@/content/pricing';
 
 export const PAGE = {
   eyebrow: 'Pricing',
+  /** The word in the hero headline drawn with a hand-drawn ring around it. */
+  ringed: 'Pricing',
   title: 'One plan per stage, every network included',
+  /** Follows "<brand> Pricing: " in the hero headline. */
+  headline: fromPrice ? `every network from ${fromPrice}/month` : 'every network included',
   body: `Every plan publishes to all ${channelCount} networks, drafts with AI and opens the full API. Choose by how many channels you connect and how many people touch them.`,
   /** Meta description for the route. */
   description: `Plans for solo creators, teams and agencies. All ${channelCount} networks, AI drafting and the API on every tier, with a ${TRIAL_DAYS}-day trial.`,
 } as const;
 
-/** Marker on the plan the ladder is designed around. Used on the card and in the table. */
-export const RIBBON = 'Most popular';
+/** Badge on the plan the ladder is designed around, on its card and its column. */
+export const RIBBON = 'Popular';
 
 export const TOGGLE = {
   legend: 'Billing period',
   monthly: 'Monthly',
   yearly: 'Yearly',
-  /** Prefixes the computed percentage on the yearly side. */
-  savePrefix: 'Save',
 } as const;
 
-/** Sub-line under a plan's price, by billing period. */
-export const PERIOD_NOTE = {
-  monthly: 'billed monthly',
-  yearly: 'billed yearly',
-} as const;
+/** After a price on the plan cards. */
+export const PER_MONTH_SUFFIX = '/mo';
 
-/** Shown in place of a billing period on a plan that is quoted rather than priced. */
+/** Shown in place of a price on a plan that is quoted rather than priced. */
 export const QUOTED_PRICE = 'Custom';
 export const QUOTED_NOTE = 'by quote';
 
@@ -54,17 +59,34 @@ export const QUOTED_NOTE = 'by quote';
 export const CONTACT_HREF = '/contact';
 
 export const TABLE = {
-  eyebrow: 'Compare',
   title: 'What every plan includes',
-  /** Accessible name for the table itself, announced before its contents. */
-  caption: 'Feature comparison across all plans, by section',
-  /** Header for the leftmost column of feature names. */
-  featureColumn: 'Feature',
+  /** Under the heading below 1024px, where the plan column headers shrink to tabs. */
+  intro: `Every plan ships all ${channelCount} networks and the full API. Pick by channel count, team size and how isolated your workspace needs to be.`,
+  plansLabel: 'Plans:',
+  saveNote:
+    yearlySavingPct > 0
+      ? `Save ${yearlySavingPct}% with yearly billing`
+      : 'Pay monthly or yearly',
+  /** Sub-line under each column's price: compact (tabs) and full (desktop). */
+  period: {
+    monthly: { short: 'month', long: 'per month' },
+    yearly: { short: 'month, billed yearly', long: 'per month, billed yearly' },
+  },
+  /** Red note under a column whose plan has a single seat. */
+  soloNote: 'One user, no team seats',
+  /** Accessible name of the tab that switches the phone view to one plan. */
+  showPlan: (name: string) => `Show the ${name} plan in the comparison`,
+  /** Hidden text for the cell marks; the mark itself is decorative. */
   included: 'Included',
   notIncluded: 'Not included',
+  unlimited: 'Unlimited',
+  moreAbout: (label: string) => `About ${label}`,
 } as const;
 
-/** The strip under the table: four plain facts about paying, in display order. */
+/** The sticky call to action pinned to the bottom of the screen below 1024px. */
+export const STICKY_CTA = popularPlan.cta;
+
+/** The line under the plan cards: four plain facts about paying, in display order. */
 export const REASSURANCE: readonly string[] = [
   `${TRIAL_DAYS}-day trial on every plan`,
   'No charge during the trial',

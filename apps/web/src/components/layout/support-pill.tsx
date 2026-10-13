@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { brand } from '@scheduler/brand';
 
 /**
@@ -55,12 +56,15 @@ const ChatBubble = () => (
  */
 export function SupportPill() {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!readHidden()) setVisible(true);
   }, []);
 
-  if (!visible || !brand.supportEmail) return null;
+  // The pricing page pins its own call to action to the bottom of phone screens,
+  // and the reference shows no pill there.
+  if (!visible || !brand.supportEmail || pathname === '/pricing') return null;
 
   const dismiss = () => {
     writeHidden();

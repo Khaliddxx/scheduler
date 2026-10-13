@@ -85,7 +85,7 @@ function AgentsColumn() {
         {agentsMenu.map((agent) => {
           const src = previewImage(`agents/${agent.logo}.svg`);
           return (
-            <li key={agent.label} className="whitespace-nowrap transition-all hover:text-pink">
+            <li key={agent.label} className="transition-all hover:text-pink 2xl:whitespace-nowrap">
               <Link
                 href={agent.href}
                 className="flex items-center justify-center gap-2 sm:justify-start"
@@ -141,7 +141,7 @@ export function Footer() {
 
       {/* Links */}
       <div className="w-full max-w-[1440px] px-5 pb-10 pt-[60px] sm:px-20 sm:pb-8 sm:pt-16">
-        <div className="flex flex-col items-center justify-between gap-[60px] text-center text-[18px] leading-[23.4px] sm:text-left lg:flex-row">
+        <div className="flex flex-col items-center justify-between gap-[60px] text-center text-[18px] leading-[23.4px] sm:text-left xl:flex-row">
           <div className="flex min-w-[320px] flex-col items-center justify-center space-y-3 lg:items-start">
             <Logo className="[&]:gap-4 [&>span:first-child]:h-[50px] [&>span:first-child]:w-[50px] [&>span:first-child]:rounded-[16px] [&>span:first-child]:text-[26px] [&>span:last-child]:text-[34px]" />
             <p>{brand.tagline}.</p>
@@ -171,14 +171,14 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="flex w-full max-w-[820px] flex-col justify-between gap-[60px] sm:flex-row sm:flex-wrap lg:flex-nowrap">
+          <div className="flex w-full max-w-[820px] flex-col justify-between gap-[60px] sm:flex-row sm:flex-wrap xl:flex-nowrap">
             {footerColumns.map((col, i) => [
               i === 1 ? <AgentsColumn key="ai-agents" /> : null,
               <div key={col.title} className="space-y-3 sm:space-y-5">
                 <p className="font-bold">{col.title}</p>
                 <ul className="space-y-2 sm:space-y-3">
                   {col.links.map((link) => (
-                    <li key={link.href} className="whitespace-nowrap transition-all hover:text-pink">
+                    <li key={link.href} className="transition-all hover:text-pink 2xl:whitespace-nowrap">
                       {link.external ? (
                         <a href={link.href} target="_blank" rel="noopener noreferrer">
                           {link.label}

@@ -3,202 +3,135 @@
 import { useState } from 'react';
 import { registerUrl } from '@scheduler/brand';
 import { cn } from '@/lib/cn';
-import { Button } from '@/components/ui/button';
-import { Tick } from '@/components/pricing/glyphs';
-import {
-  CONTACT_HREF,
-  PERIOD_NOTE,
-  QUOTED_NOTE,
-  QUOTED_PRICE,
-  RIBBON,
-  TOGGLE,
-} from '@/components/pricing/copy';
-import {
-  plans,
-  priceFor,
-  yearlySavingPct,
-  type BillingPeriod,
-  type Plan,
-} from '@/content/pricing';
+import { BillingToggle } from '@/components/pricing/billing-toggle';
+import { TickSquare } from '@/components/pricing/glyphs';
+import { PillLink } from '@/components/pricing/pill-link';
+import { CONTACT_HREF, PER_MONTH_SUFFIX, QUOTED_PRICE, RIBBON } from '@/components/pricing/copy';
+import { isQuoted, money } from '@/components/pricing/price';
+import { plans, priceFor, type BillingPeriod, type Plan } from '@/content/pricing';
 
 /**
- * The interactive part of the pricing page: the billing toggle and the plan cards.
+ * The billing switch and the plan cards, laid out as the reference's pricing
+ * block: a 184px switch (full width below 1024px), then one column of cards that
+ * becomes four equal columns at 1024px (min 237px each, 12px gap). The popular
+ * plan's card is the purple gradient with a "Popular" pill and a flourish in its
+ * top-right corner, and the only solid white call to action.
  *
- * This is the only client component on the route. The page itself, the comparison
- * table, the reassurance strip and the FAQ all render on the server; the cards live
- * here because every price on them changes with the toggle.
+ * Card rhythm, top to bottom: name, 20px, price with "/mo", 8px, who it is for,
+ * a hairline with 24px (30px from 640px) above and below, the bullet list, 44px,
+ * the call to action. Padding 30/20 on phones, 16 at 1024px, 30 at 1440px.
  *
- * The toggle is two real radio inputs in a fieldset rather than two buttons, so it
- * gets arrow-key behaviour, a group label and a checked state for free. The inputs
- * are visually hidden and the pill next to each one is what you see, which is why
- * the focus ring is drawn with `peer-focus-visible` — the focused element itself
- * has no pixels.
+ * Bullets are each plan's own `highlights` from src/content/pricing.ts. The full
+ * per-feature matrix is the comparison further down.
  */
 
-const PERIODS: ReadonlyArray<{ id: BillingPeriod; label: string }> = [
-  { id: 'monthly', label: TOGGLE.monthly },
-  { id: 'yearly', label: TOGGLE.yearly },
-];
-
-/**
- * Prices are whole units in the plan's own currency, so the symbol comes from the
- * currency code rather than being hardcoded to a dollar sign. The locale is fixed
- * so the server and the client format identically and hydration stays quiet.
- */
-const money = (amount: number, currency: string): string =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    currencyDisplay: 'narrowSymbol',
-    maximumFractionDigits: 0,
-  }).format(amount);
-
-/**
- * A plan with no published price on either period is quoted, not free. The
- * Dedicated tier carries `monthly: 0` precisely because its price depends on the
- * instance, so it must never render as "$0" — it shows "Custom" and its call to
- * action goes to contact rather than to sign-up. Deriving this from the price (and
- * from both periods, so the toggle cannot change where the button points) keeps it
- * true for any future plan that is quoted the same way.
- */
-const isQuoted = (plan: Plan): boolean =>
-  priceFor(plan, 'monthly') === 0 && priceFor(plan, 'yearly') === 0;
-
-function BillingToggle({
+function PlanCard({
+  plan,
   period,
-  onChange,
+  decoration,
 }: {
+  plan: Plan;
   period: BillingPeriod;
-  onChange: (next: BillingPeriod) => void;
+  decoration: string | null;
 }) {
-  return (
-    <fieldset className="inline-flex items-center gap-1 rounded-control bg-white/[0.06] p-1 shadow-hairline">
-      <legend className="sr-only">{TOGGLE.legend}</legend>
-
-      {PERIODS.map(({ id, label }) => {
-        const active = period === id;
-        return (
-          <label key={id} className="cursor-pointer">
-            <input
-              type="radio"
-              name="billing-period"
-              value={id}
-              checked={active}
-              onChange={() => onChange(id)}
-              className="peer sr-only"
-            />
-            <span
-              className={cn(
-                'flex items-center gap-2 rounded-control px-4 py-2 text-body-sm font-medium transition-colors duration-200',
-                'peer-focus-visible:ring-2 peer-focus-visible:ring-accent',
-                active ? 'bg-white text-[#0e0e0e]' : 'text-muted hover:text-white',
-              )}
-            >
-              {label}
-              {id === 'yearly' && yearlySavingPct > 0 ? (
-                <span
-                  className={cn(
-                    'rounded-control px-2 py-0.5 text-eyebrow uppercase',
-                    active ? 'bg-[#0e0e0e]/10 text-[#0e0e0e]' : 'bg-white/10 text-accent',
-                  )}
-                >
-                  {TOGGLE.savePrefix} {yearlySavingPct}%
-                </span>
-              ) : null}
-            </span>
-          </label>
-        );
-      })}
-    </fieldset>
-  );
-}
-
-function PlanCard({ plan, period }: { plan: Plan; period: BillingPeriod }) {
   const quoted = isQuoted(plan);
   const popular = plan.popular === true;
 
-  const body = (
-    <div
+  return (
+    <li
       className={cn(
-        'flex h-full flex-col p-6 sm:p-7',
-        // On the popular card the gradient lives on the wrapper below, so the inner
-        // surface is drawn here at one pixel inside the 20px radius.
-        popular ? 'rounded-[19px] bg-bgInner' : 'card',
+        'relative flex w-full flex-1 flex-col rounded-[20px] border border-white/10 px-[20px] py-[30px] min-[1024px]:min-w-[237px] min-[1024px]:p-[16px] min-[1440px]:p-[30px]',
+        popular ? 'bg-gradient-to-bl from-[#682EE1] to-[#2A0772]' : 'bg-[#1A1919]',
       )}
     >
-      <h3 className="font-display text-heading-sm text-white">{plan.name}</h3>
-      <p className="mt-2 text-body-xs leading-[1.5] text-dim">{plan.audience}</p>
-
-      <p className="mt-6 flex items-baseline gap-1.5">
-        <span className="font-display text-display-sm text-white">
-          {quoted ? QUOTED_PRICE : money(priceFor(plan, period), plan.currency)}
-        </span>
-        {quoted ? null : <span className="text-body-sm text-dim">/mo</span>}
+      <h3 className="font-jakarta text-[20px] font-medium leading-[22px] min-[1024px]:text-[22px] min-[1024px]:leading-[24.2px] min-[1440px]:text-[24px] min-[1440px]:leading-[26.4px]">
+        {plan.name}
+      </h3>
+      <div className="min-h-[20px]" />
+      <p className="font-jakarta text-[40px] font-semibold leading-[44px] min-[1024px]:text-[50px] min-[1024px]:leading-[55px] min-[1440px]:text-[60px] min-[1440px]:leading-[66px]">
+        {quoted ? QUOTED_PRICE : money(priceFor(plan, period), plan.currency)}
+        {quoted ? null : (
+          <span className="ml-2 font-jakarta text-[20px] leading-[22px] min-[1024px]:text-[20px] min-[1024px]:leading-[22px] min-[1440px]:text-[24px] min-[1440px]:leading-[26.4px]">
+            {PER_MONTH_SUFFIX}
+          </span>
+        )}
       </p>
-      <p className="mt-1.5 text-body-xs text-dim">
-        {quoted ? QUOTED_NOTE : PERIOD_NOTE[period]}
+      <div className="min-h-[8px]" />
+      <p className="text-[16px] leading-[20.83px] text-[#D1D1D1] min-[1024px]:text-[16px] min-[1024px]:leading-[20.83px] min-[1440px]:text-[18px] min-[1440px]:leading-[23.44px]">
+        {plan.audience}
       </p>
+      <div aria-hidden className="my-6 min-h-[1px] bg-white/10 sm:my-[30px]" />
 
-      <ul className="mt-6 flex flex-1 flex-col gap-3 border-t border-line pt-6">
+      <ul className="flex-1 space-y-2.5 sm:space-y-3">
         {plan.highlights.map((highlight) => (
-          <li
-            key={highlight}
-            className="flex items-start gap-2.5 text-body-sm leading-[1.45] text-muted"
-          >
-            <Tick className="mt-[3px] text-accent" />
-            <span>{highlight}</span>
+          <li key={highlight} className="flex gap-2">
+            <TickSquare className="mb-auto mt-[0.5px]" />
+            <p className="text-[14px] leading-[18.83px] min-[1024px]:text-[14px] min-[1024px]:leading-[18.83px] min-[1440px]:text-[16px] min-[1440px]:leading-[20.83px]">
+              {highlight}
+            </p>
           </li>
         ))}
       </ul>
 
-      <div className="mt-7">
-        {quoted ? (
-          <Button href={CONTACT_HREF} variant="secondary" withChevron className="w-full">
-            {plan.cta}
-            <span className="sr-only">, {plan.name} plan</span>
-          </Button>
-        ) : (
-          <Button
-            href={registerUrl()}
-            external
-            variant={popular ? 'primary' : 'secondary'}
-            withChevron
-            className="w-full"
-          >
-            {plan.cta}
-            <span className="sr-only">, {plan.name} plan</span>
-          </Button>
-        )}
+      <div className="min-h-[44px]" />
+      <div className="flex justify-center">
+        <PillLink
+          href={quoted ? CONTACT_HREF : registerUrl()}
+          variant={popular ? 'primary' : 'secondary'}
+        >
+          {plan.cta}
+          <span className="sr-only">, {plan.name} plan</span>
+        </PillLink>
       </div>
-    </div>
-  );
 
-  if (!popular) return <li>{body}</li>;
-
-  return (
-    <li className="relative rounded-card bg-brand p-px shadow-lift">
-      <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-control bg-white px-3 py-1 text-eyebrow uppercase text-[#0e0e0e]">
-        {RIBBON}
-      </span>
-      {body}
+      {popular ? (
+        <div className="absolute right-4 top-4">
+          <div className="w-fit rounded-full bg-white/20 px-4 py-2">
+            <p className="text-[14px] leading-[18.23px]">{RIBBON}</p>
+          </div>
+          {decoration ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={decoration}
+              alt=""
+              aria-hidden
+              width={48}
+              height={47}
+              className="absolute right-14 top-4"
+            />
+          ) : null}
+        </div>
+      ) : null}
     </li>
   );
 }
 
-export function PlanPicker() {
+export function PlanPicker({
+  popularDecoration = null,
+}: {
+  /** The flourish beside the popular badge, resolved on the server (public/preview/pricing). */
+  popularDecoration?: string | null;
+}) {
   const [period, setPeriod] = useState<BillingPeriod>('monthly');
 
   return (
-    <div>
-      <div className="flex justify-center">
-        <BillingToggle period={period} onChange={setPeriod} />
-      </div>
+    <>
+      <BillingToggle
+        period={period}
+        onChange={setPeriod}
+        className="mb-10 w-full min-[1024px]:w-[184px]"
+      />
 
-      <ul className="mt-12 grid grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid w-full grid-cols-1 gap-3 min-[1024px]:grid-cols-4">
         {plans.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} period={period} />
+          <PlanCard
+            key={plan.id}
+            plan={plan}
+            period={period}
+            decoration={popularDecoration}
+          />
         ))}
       </ul>
-    </div>
+    </>
   );
 }
