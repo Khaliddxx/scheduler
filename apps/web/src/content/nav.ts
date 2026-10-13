@@ -121,6 +121,91 @@ export const agentMenu: MenuItem[] = [
   { label: 'Agent CLI', href: '/developers#cli', glyph: 'braces' },
 ];
 
+/* ------------------------------------------------------------------ */
+/* Header                                                              */
+/* ------------------------------------------------------------------ */
+
+/** One entry in the header bar: a plain link, or the trigger for a mega-menu. */
+export interface HeaderNavEntry {
+  label: string;
+  href?: string;
+  menu?: 'agents' | 'channels';
+}
+
+/**
+ * Header bar, in the reference design's order. Its "News" and "Blog" entries
+ * are left out because this site has no such pages.
+ */
+export const headerNav: HeaderNavEntry[] = [
+  { label: 'AI Agents', menu: 'agents' },
+  { label: 'Dev Docs', href: '/docs' },
+  { label: 'Channels', menu: 'channels' },
+  { label: 'Pricing', href: '/pricing' },
+];
+
+/** An entry in the "AI Agents" mega-menu. */
+export interface AgentMenuEntry {
+  label: string;
+  href: string;
+  /** File name (no extension) in public/preview/agents/. */
+  logo: string;
+  /**
+   * The SVG draws its own rounded tile, so it gets no extra ring. True for the
+   * marks the reference draws inline rather than as image tiles.
+   */
+  ownTile?: boolean;
+}
+
+/**
+ * The "AI Agents" mega-menu: the reference design's 22 assistants in its
+ * order. Those with a page of their own link to it; the rest go to the
+ * integrations index, which explains the MCP connection they all share.
+ */
+export const agentsMenu: AgentMenuEntry[] = [
+  { label: 'ChatGPT', href: '/integrations/chatgpt', logo: 'chatgpt' },
+  { label: 'OpenAI dots', href: '/integrations', logo: 'dots' },
+  { label: 'Claude', href: '/integrations/claude', logo: 'claude' },
+  { label: 'Claude Cowork', href: '/integrations', logo: 'claude-cowork' },
+  { label: 'Claude Code', href: '/integrations/claude-code', logo: 'claude-code' },
+  { label: 'Codex', href: '/integrations/codex', logo: 'codex' },
+  { label: 'Cursor', href: '/integrations/cursor', logo: 'cursor' },
+  { label: 'Gemini', href: '/integrations/gemini', logo: 'gemini', ownTile: true },
+  { label: 'OpenClaw', href: '/integrations', logo: 'openclaw' },
+  { label: 'Hermes Agent', href: '/integrations', logo: 'hermes' },
+  { label: 'Grok Bot', href: '/integrations', logo: 'grok-bot' },
+  { label: 'Grok Build', href: '/integrations', logo: 'grok-build' },
+  { label: 'DeepSeek', href: '/integrations', logo: 'deepseek', ownTile: true },
+  { label: 'Kimi K3', href: '/integrations', logo: 'kimi', ownTile: true },
+  { label: 'Muse', href: '/integrations', logo: 'muse' },
+  { label: 'Manus', href: '/integrations', logo: 'manus' },
+  { label: 'Cue', href: '/integrations', logo: 'cue' },
+  { label: 'Perplexity Computer', href: '/integrations', logo: 'perplexity' },
+  { label: 'nanoclaw', href: '/integrations', logo: 'nanoclaw' },
+  { label: 'Paperclip', href: '/integrations', logo: 'paperclip' },
+  { label: 'MCP Server', href: '/developers#mcp', logo: 'mcp' },
+  { label: 'AI Agents CLI', href: '/developers#cli', logo: 'terminal' },
+];
+
+/**
+ * Order of the "Channels" mega-menu (the reference design's menu order, which
+ * differs from its hero order). Only channels we sell are shown; one missing
+ * from this list goes last.
+ */
+export const channelMenuOrder: string[] = [
+  'facebook', 'instagram', 'threads', 'linkedin', 'bluesky', 'x', 'tiktok',
+  'youtube', 'google-my-business', 'reddit', 'telegram', 'discord', 'slack',
+  'pinterest', 'dribbble', 'mastodon', 'warpcast', 'vk', 'lemmy', 'nostr',
+  'listmonk', 'wordpress', 'medium', 'hashnode', 'devto',
+];
+
+/**
+ * Shorter labels for the "Channels" menu, where a long name would run into
+ * the next column of the two-column mobile list.
+ */
+export const channelMenuLabels: Record<string, string> = {
+  'google-my-business': 'Google Business',
+};
+
 /** Secondary column in the Resources menu. */
 export const resourceMenu: MenuItem[] = [
   { label: 'Documentation', href: '/docs', glyph: 'book' },

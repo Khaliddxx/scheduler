@@ -1,120 +1,187 @@
 import Link from 'next/link';
-import { brand } from '@scheduler/brand';
+import { brand, registerUrl } from '@scheduler/brand';
 import { footerColumns } from '@/content/nav';
+import { channelCount } from '@/content/channels';
 import { Logo } from '@/components/ui/logo';
+import { DoubleChevron, startPillClass } from '@/components/layout/header-icons';
 
 const YEAR = 2026;
 
 /**
- * Giant wordmark that sits above the footer columns and is cut off by them.
+ * Giant brand name at the foot of the call-to-action block, cut off by the
+ * block's bottom edge.
  *
- * Purely decorative, so it is hidden from assistive tech and cannot be
- * selected or clicked. The geometry works in `em` of the band's own font size,
- * so the clip stays proportional as the clamp() scales from phone to desktop:
+ * `sticky` with a negative bottom inset makes it rise into place as the block
+ * scrolls up: until the block is well into view the word is held against the
+ * bottom of the viewport, then it settles. No script, no animation, so there is
+ * nothing for reduced-motion settings to switch off.
  *
- *   - `leading-none` gives the line box a height of 1em; the glyph tops of
- *     Plus Jakarta Sans sit roughly 0.18em below that box's top edge.
- *   - The text is pulled up 0.4em and then translated down 30% of its own
- *     height, which lands the cap tops ~0.08em below the band's top edge and
- *     the baseline ~0.8em down.
- *   - The band's own height is therefore 0.6em, so the footer's top edge cuts
- *     through the letters at about 70% of cap height: the bottom third is
- *     gone, as in the reference.
- *
- * The band is overflow-hidden in both axes and the text never wraps, so a long
- * brand name clips rather than widening the page at 390px.
+ * Drawn as SVG text in a fixed 1188x541 box so it scales with the width of the
+ * block like an image. The size is worked out from the length of the name, so a
+ * rename never overflows the box. Decorative, hence aria-hidden.
  */
 function Wordmark() {
+  const name = brand.name;
+  const W = 1188;
+  const H = 541;
+  // Plus Jakarta Sans ExtraBold averages ~0.51em per letter; cap height ~0.72em.
+  const size = Math.min(580, W / (0.51 * Math.max(name.length, 1)));
   return (
-    <div
+    <svg
       aria-hidden
-      className="pointer-events-none relative select-none overflow-hidden text-[length:clamp(96px,22vw,320px)]"
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      data-wordmark
+      className="pointer-events-none sticky bottom-[-13%] h-auto max-w-full shrink-0 select-none md:bottom-[-32%]"
     >
-      <p className="-mt-[0.4em] translate-y-[30%] whitespace-nowrap text-center font-display font-extrabold leading-none tracking-[-0.04em] text-accent">
-        {brand.name}
-      </p>
-      {/* Soft top fade so the letters emerge from the page rather than start abruptly. */}
-      <div className="absolute inset-x-0 top-0 h-[30%] bg-gradient-to-b from-bg to-transparent" />
-    </div>
+      <text
+        x={W / 2}
+        y={Math.round(size * 0.72)}
+        textAnchor="middle"
+        fontSize={size}
+        fill="#E064FF"
+        className="font-jakarta font-extrabold"
+      >
+        {name}
+      </text>
+    </svg>
   );
 }
 
+const GitHubIcon = () => (
+  <svg aria-hidden width="21" height="20" viewBox="0 0 24 24" fill="white">
+    <path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3" />
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg aria-hidden width="22" height="18" viewBox="0 0 22 18" fill="none">
+    <rect x="1.75" y="1.75" width="18.5" height="14.5" rx="2.5" stroke="white" strokeWidth="1.5" />
+    <path d="M2.5 3l8.5 6.5L19.5 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const roundButton =
+  'flex h-11 w-11 items-center justify-center rounded-full bg-[#3e3e3e] transition-all hover:bg-pink';
+
 /**
- * Footer.
+ * Footer: the closing call to action, then the link columns.
  *
- * The "source" line is not decoration. The engine is AGPL-3.0, and section 13
+ * The bottom row is not decoration. The engine is AGPL-3.0, and section 13
  * obliges an operator of a modified network service to offer that modified
- * source to its users. A persistent, prominent link discharges that obligation
- * and costs nothing. Do not remove it. See docs/06-agpl-compliance.md.
+ * source to its users; docs/06-agpl-compliance.md also asks for a
+ * non-affiliation statement here. A persistent, prominent link discharges
+ * that obligation and costs nothing. Do not remove it.
  */
 export function Footer() {
   return (
-    <footer className="bg-bg">
-      <Wordmark />
+    <footer className="flex flex-col items-center">
+      {/* Call to action */}
+      <div className="relative flex h-[500px] w-full flex-col items-center gap-[77px] overflow-hidden rounded-t-[20px] bg-[#1A1919] px-5 pt-[80px] sm:h-[770px] sm:gap-[65px] sm:rounded-t-[32px] sm:px-12 sm:pt-[140px]">
+        <div className="flex flex-col items-center gap-4">
+          <h2 className="text-center font-jakarta text-[40px] font-bold leading-[44px] sm:text-[60px] sm:leading-[66px]">
+            Start posting with {brand.name}
+          </h2>
+          <p className="mb-4 max-w-[538px] text-center text-[18px] leading-[23.44px] text-[#d1d1d1] sm:text-[22px] sm:leading-[28.64px]">
+            Plan and publish to {channelCount} networks from one calendar.
+            <br />
+            Let your own AI agents do the drafting.
+          </p>
+          <div>
+            <a href={registerUrl()} className={startPillClass('lg')}>
+              Start for $0
+              <DoubleChevron className="h-5 w-5 md:h-6 md:w-6" />
+            </a>
+          </div>
+        </div>
+        <Wordmark />
+      </div>
 
-      <div className="border-t border-white/[0.07]">
-        <div className="shell py-16 sm:py-20">
-          <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
-            <div className="flex flex-col gap-5">
-              <Logo />
-              <p className="max-w-[34ch] text-body-sm leading-relaxed text-dim">
-                {brand.tagline}.
-              </p>
-              {brand.supportEmail ? (
+      {/* Links */}
+      <div className="w-full max-w-[1440px] px-5 pb-10 pt-[60px] sm:px-20 sm:pb-8 sm:pt-16">
+        <div className="flex flex-col items-center justify-between gap-[60px] text-center text-[18px] leading-[23.4px] sm:text-left lg:flex-row">
+          <div className="flex min-w-[320px] flex-col items-center justify-center space-y-3 lg:items-start">
+            <Logo className="[&]:gap-4 [&>span:first-child]:h-[50px] [&>span:first-child]:w-[50px] [&>span:first-child]:rounded-[16px] [&>span:first-child]:text-[26px] [&>span:last-child]:text-[34px]" />
+            <p>{brand.tagline}.</p>
+            <ul className="flex justify-center gap-[10px]">
+              <li>
                 <a
-                  href={`mailto:${brand.supportEmail}`}
-                  className="text-body-sm text-muted underline-offset-4 hover:text-white hover:underline"
+                  href={brand.upstream.sourceOfferUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${brand.name} source code on GitHub`}
+                  className={roundButton}
                 >
-                  {brand.supportEmail}
+                  <GitHubIcon />
                 </a>
+              </li>
+              {brand.supportEmail ? (
+                <li>
+                  <a
+                    href={`mailto:${brand.supportEmail}`}
+                    aria-label={`Email ${brand.name} support`}
+                    className={roundButton}
+                  >
+                    <MailIcon />
+                  </a>
+                </li>
               ) : null}
-            </div>
+            </ul>
+          </div>
 
+          <div className="flex w-full max-w-[820px] flex-col justify-between gap-[60px] sm:flex-row sm:flex-wrap lg:flex-nowrap">
             {footerColumns.map((col) => (
-              <div key={col.title} className="flex flex-col gap-4">
-                <p className="text-body-sm font-bold text-white">{col.title}</p>
-                <ul className="flex flex-col gap-3">
+              <div key={col.title} className="space-y-3 sm:space-y-5">
+                <p className="font-bold">{col.title}</p>
+                <ul className="space-y-2 sm:space-y-3">
                   {col.links.map((link) => (
-                    <li key={link.href}>
-                      <Link
-                        href={link.href}
-                        className="text-body-sm text-dim transition-colors hover:text-white"
-                      >
-                        {link.label}
-                      </Link>
+                    <li key={link.href} className="transition-all hover:text-pink">
+                      {link.external ? (
+                        <a href={link.href} target="_blank" rel="noopener noreferrer">
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href}>{link.label}</Link>
+                      )}
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
+        </div>
 
-          <div className="mt-14 flex flex-col gap-4 border-t border-white/[0.07] pt-8 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-body-xs text-dim">
+        <div className="my-10 min-h-[1px] w-full bg-white/10 sm:my-8" />
+
+        <div className="flex flex-col-reverse items-center justify-between gap-8 lg:flex-row">
+          <div className="flex flex-col-reverse items-center gap-2 text-center text-[14px] leading-[18.23px] text-[#D1D1D1] sm:gap-8 md:flex-row md:text-left">
+            <p>
               &copy; {brand.legalName || brand.name}, {YEAR}. All rights reserved.
             </p>
-
-            <p className="max-w-[62ch] text-body-xs leading-relaxed text-dim">
+            <p>
               Built on{' '}
               <a
                 href={brand.upstream.repo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted underline underline-offset-4 hover:text-white"
+                className="underline-offset-4 hover:underline"
               >
                 {brand.upstream.project}
               </a>
-              , licensed {brand.upstream.licence}.{' '}
+              , licensed {brand.upstream.licence}.
+            </p>
+            <p>
               <a
                 href={brand.upstream.sourceOfferUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted underline underline-offset-4 hover:text-white"
+                className="underline underline-offset-4 hover:text-white"
               >
                 Source for the version we run
               </a>
-              . {brand.name} is not affiliated with or endorsed by the{' '}
-              {brand.upstream.project} project.
+              . {brand.name} is not affiliated with or endorsed by the {brand.upstream.project}{' '}
+              project.
             </p>
           </div>
         </div>

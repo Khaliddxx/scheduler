@@ -105,7 +105,11 @@ export interface Capability {
   eyebrow: string;
   title: string;
   body: string;
-  /** Bento span: 'half' is one column of two, 'full' spans both. */
+  /**
+   * Panel width on wide screens: 'half' panels pair up two to a row, 'full'
+   * spans the row with the copy beside the media. Bodies are kept to about
+   * three lines at desktop so paired panels stay the same height.
+   */
   span: 'half' | 'full';
   /** Which illustration component renders inside the card. */
   visual: 'calendar' | 'agents' | 'editor' | 'team' | 'plugs' | 'analytics';
@@ -117,16 +121,16 @@ export const capabilities: Capability[] = [
     eyebrow: 'Planning',
     title: 'Schedule everywhere at once',
     body:
-      'Write a post once and publish it to every channel you pick, on the schedule you set. Adjust the wording per network where it matters, and preview the whole week before any of it goes out.',
+      'Write a post once and publish it to every channel you pick, on the schedule you set. Preview the whole week before any of it goes out.',
     span: 'half',
     visual: 'calendar',
   },
   {
     id: 'agents',
     eyebrow: 'AI agents',
-    title: 'Let an agent do the first draft',
+    title: 'Let an agent draft it',
     body:
-      'Connect the assistant you already use and let it propose a week of posts. Everything lands as a draft in your calendar, so nothing publishes until you say so.',
+      'Let your assistant propose a week of posts. Everything lands as a draft, so nothing publishes until you say so.',
     span: 'half',
     visual: 'agents',
   },
@@ -140,7 +144,7 @@ export const capabilities: Capability[] = [
     eyebrow: 'Media',
     title: 'Design the image without leaving',
     body:
-      'A built-in editor for post images, or generate one from a prompt. Crop per network automatically so a square feed post and a vertical story come from the same asset.',
+      'A built-in editor for post images, or generate one from a prompt, cropped per network automatically.',
     span: 'full',
     visual: 'editor',
   },
@@ -149,7 +153,7 @@ export const capabilities: Capability[] = [
     eyebrow: 'Teams',
     title: 'Built for more than one person',
     body:
-      'Invite your team, assign posts, and require approval before anything publishes. Every client or brand gets its own workspace.',
+      'Invite your team, assign posts, and require approval before anything publishes.',
     span: 'half',
     visual: 'team',
   },
@@ -158,7 +162,7 @@ export const capabilities: Capability[] = [
     eyebrow: 'Automation',
     title: 'Act on what performs',
     body:
-      'Set a milestone — a hundred likes, say — and have the post automatically repeat, cross-post or pick up a follow-up comment, so your best content keeps working.',
+      'Set a milestone — a hundred likes, say — and have the post repeat, cross-post or pick up a follow-up comment, so your best content keeps working.',
     span: 'half',
     visual: 'plugs',
   },
@@ -167,7 +171,7 @@ export const capabilities: Capability[] = [
     eyebrow: 'Analytics',
     title: 'See what actually travelled',
     body:
-      'Per-post and per-channel numbers in one view, so you can tell which hooks worked and double down instead of guessing.',
+      'Per-post and per-channel numbers in one view, so you can double down on what worked instead of guessing.',
     span: 'full',
     visual: 'analytics',
   },
