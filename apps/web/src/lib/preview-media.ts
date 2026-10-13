@@ -40,12 +40,14 @@ export const previewPoster = (name: string): string | null => {
 export const previewImage = (rel: string): string | null =>
   exists(rel) ? `/preview/${rel}` : null;
 
-/** True when any clip is present. Drives the build guard in lib/guards.ts. */
+/** True when any clip is present, in any subfolder. Drives the build warning in lib/guards.ts. */
 export const previewMediaPresent = (): boolean => {
   try {
     return (
       fs.existsSync(PREVIEW_DIR) &&
-      fs.readdirSync(PREVIEW_DIR).some((f) => /\.(webm|mp4)$/.test(f))
+      fs
+        .readdirSync(PREVIEW_DIR, { recursive: true })
+        .some((f) => /\.(webm|mp4)$/.test(String(f)))
     );
   } catch {
     return false;

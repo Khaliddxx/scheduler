@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn';
  */
 
 const base =
-  'flex w-fit items-center justify-center gap-[6px] whitespace-nowrap rounded-full font-medium transition-all text-[16px] leading-[20.83px] sm:text-[19px] sm:leading-[25px] max-sm:!w-full';
+  'flex h-fit w-fit items-center justify-center gap-[6px] whitespace-nowrap rounded-full font-medium transition-all text-[16px] leading-[20.83px] sm:text-[19px] sm:leading-[25px] max-sm:!w-full';
 
 const isExternal = (href: string) => /^https?:\/\//.test(href);
 

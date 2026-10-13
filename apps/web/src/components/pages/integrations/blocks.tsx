@@ -55,7 +55,11 @@ export function AccentScope({
   );
 }
 
-/** A page block: a hairline rule, an h2 with an optional intro, then content. */
+/**
+ * A page block: a hairline rule, an h2 with an optional intro, then content.
+ * Anchors land 120px below the top, as on the reference: 24px of scroll margin
+ * on top of the 96px scroll padding the site sets on <html>.
+ */
 export function Block({
   id,
   title,
@@ -68,7 +72,7 @@ export function Block({
   children?: ReactNode;
 }) {
   return (
-    <section id={id} className="mx-auto block w-full max-w-[1360px] scroll-mt-[120px] overflow-visible px-5">
+    <section id={id} className="mx-auto block w-full max-w-[1360px] scroll-mt-[24px] overflow-visible px-5">
       <div className="border-t border-white/10 py-12 sm:py-[72px]">
         <header className="max-w-[820px]">
           <h2 className="text-balance text-left font-jakarta text-[28px] font-bold leading-[34px] tracking-[-0.01em] text-white sm:text-[36px] sm:leading-[42px]">
@@ -333,7 +337,7 @@ export function CodeSteps({
             key={i}
             id={step.id}
             className={cn(
-              'grid scroll-mt-[120px] grid-cols-1 items-start gap-6 p-6 sm:p-8',
+              'grid scroll-mt-[24px] grid-cols-1 items-start gap-6 p-6 sm:p-8',
               panel,
               aside ? 'lg:grid-cols-2 lg:gap-10' : '',
             )}

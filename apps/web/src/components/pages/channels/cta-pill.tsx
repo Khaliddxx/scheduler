@@ -1,5 +1,4 @@
 import { registerUrl } from '@scheduler/brand';
-import { popularPlan } from '@/content/pricing';
 
 /**
  * The white call-to-action pill used across the channel pages: white with
@@ -18,7 +17,8 @@ export function CtaPill({ className }: { className?: string }) {
         .filter(Boolean)
         .join(' ')}
     >
-      {popularPlan.cta}
+      {/* Same label as the header and footer pills: the first 7 days cost $0. */}
+      Start for $0
       <svg
         aria-hidden
         width="24"
