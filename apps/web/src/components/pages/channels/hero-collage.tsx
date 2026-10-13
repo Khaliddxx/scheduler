@@ -179,7 +179,7 @@ export function HeroCollageLeft({ className }: { className?: string }) {
         <Initials cx={83.65} cy={83.65} r={62.51} text="AM" gradient="chl-pink" size={40} />
         <rect x="21.14" y="121.16" width="125.02" height="43.728" rx="21.864" fill="#2F70EF" />
         <g
-          transform="translate(44 133.5)"
+          transform="translate(42 132) scale(1.15)"
           stroke="white"
           strokeWidth="1.9"
           strokeLinecap="round"
@@ -189,7 +189,7 @@ export function HeroCollageLeft({ className }: { className?: string }) {
           <path d="M0 19c.6-4.2 3.6-6.6 7.5-6.6s6.9 2.4 7.5 6.6" />
           <path d="M14.2 1.4a4.6 4.6 0 0 1 0 8.4M18 12.8c2.4.9 3.9 3 4.3 6.2" />
         </g>
-        <text x="100.3" y="150" textAnchor="middle" fontSize="20" fontWeight={600} {...label}>
+        <text x="101" y="151" textAnchor="middle" fontSize="23" fontWeight={600} {...label}>
           8.3K
         </text>
       </g>
@@ -206,15 +206,14 @@ export function HeroCollageLeft({ className }: { className?: string }) {
         strokeOpacity="0.05"
         strokeWidth="0.519392"
       />
-      <g stroke="white" strokeWidth="5.6" strokeLinecap="round">
-        <path d="M71.6 412.4l16.6-16.6" />
-        <path d="M92.6 391.4l2.4-2.4" />
+      <g stroke="white" strokeWidth="6.6" strokeLinecap="round">
+        <path d="M70.6 414.4l18.2-18.2" />
+        <path d="M93.4 391.6l3.2-3.2" />
       </g>
       <g fill="white">
-        <path d="M96.1 383.1l1.5 3.4 3.4 1.5-3.4 1.5-1.5 3.4-1.5-3.4-3.4-1.5 3.4-1.5z" />
-        <path d="M79.4 379.1l1.1 2.4 2.4 1.1-2.4 1.1-1.1 2.4-1.1-2.4-2.4-1.1 2.4-1.1z" />
-        <path d="M72 390.2l1.1 2.4 2.4 1.1-2.4 1.1-1.1 2.4-1.1-2.4-2.4-1.1 2.4-1.1z" />
-        <path d="M99.7 399.4l1.1 2.4 2.4 1.1-2.4 1.1-1.1 2.4-1.1-2.4-2.4-1.1 2.4-1.1z" />
+        <path d="M80 377.4l1.6 3.6 3.6 1.6-3.6 1.6-1.6 3.6-1.6-3.6-3.6-1.6 3.6-1.6z" />
+        <path d="M71.4 389.6l1.4 3.1 3.1 1.4-3.1 1.4-1.4 3.1-1.4-3.1-3.1-1.4 3.1-1.4z" />
+        <path d="M100.6 398.4l1.4 3.1 3.1 1.4-3.1 1.4-1.4 3.1-1.4-3.1-3.1-1.4 3.1-1.4z" />
       </g>
     </svg>
   );
