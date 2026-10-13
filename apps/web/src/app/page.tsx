@@ -5,17 +5,15 @@ import { homeFaqs } from '@/content/faq';
 
 import { Hero } from '@/components/sections/hero';
 import { ShowcasePanel } from '@/components/sections/showcase-panel';
-import { TrustBar } from '@/components/sections/trust-bar';
 import { StatMarquee } from '@/components/sections/stat-marquee';
 import { Audiences } from '@/components/sections/audiences';
 import { Assistants } from '@/components/sections/assistants';
-import { Integrations } from '@/components/sections/integrations';
+import { InAction } from '@/components/sections/in-action';
 import { Capabilities } from '@/components/sections/capabilities';
 import { ChannelGrid } from '@/components/sections/channel-grid';
 import { Testimonials } from '@/components/sections/testimonials';
 import { Faq } from '@/components/sections/faq';
 import { CtaBand } from '@/components/sections/cta-band';
-import { Reveal } from '@/components/ui/reveal';
 
 export const metadata: Metadata = {
   title: `${brand.name} — ${brand.tagline}`,
@@ -26,19 +24,23 @@ export const metadata: Metadata = {
 /**
  * Home page.
  *
- * Section order follows the argument the page is making, which is worth
- * stating because it is easy to reorder these into incoherence:
+ * Section order, widths and rhythm follow the reference design section for
+ * section (see public/preview/README.md for the media each one uses):
  *
- *   Hero          what it is, in one sentence, with the proof visible
- *   TrustBar      the breadth claim, shown rather than asserted
- *   Audiences     who it is for — lets a visitor self-select in or out fast
- *   Assistants    the differentiator: drive it from ChatGPT, Claude, a terminal
- *   Integrations  the plumbing behind that — API, MCP, webhooks, automations
- *   Capabilities  the table stakes, in depth, for someone now evaluating
- *   ChannelGrid   the breadth claim again, now as a browsable directory
- *   Testimonials  proof, once there is something to be persuaded of
- *   Faq           objection handling, last, for the people still hesitating
- *   CtaBand       the ask
+ *   Hero           what it is, with the assistant it runs from cycling in the headline
+ *   ShowcasePanel  agentic / classic toggle over the product footage
+ *   StatMarquee    what each network can be sent, as two counter-scrolling rows
+ *   Audiences      who it is for
+ *   InAction       the product demo
+ *   Assistants     drive it from ChatGPT, Claude, a terminal; and automation
+ *   Capabilities   the table stakes, in depth
+ *   ChannelGrid    every network, as a browsable directory
+ *   CtaBand        the ask, mid-page
+ *   Testimonials   proof
+ *   Faq            objection handling
+ *
+ * The footer carries the closing call to action. Sections do not animate in on
+ * scroll; only the elements the reference animates move.
  */
 export default function HomePage() {
   // Product schema, emitted server-side. Keep the claims here identical to the
@@ -68,39 +70,17 @@ export default function HomePage() {
         // Serialised server-side from a literal we control; no user input reaches it.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/*
-        The hero animates itself on load; everything below enters on scroll.
-        `distance="none"` on the wide bento sections because a large block
-        sliding upward reads as a template — they fade only.
-      */}
       <Hero />
       <ShowcasePanel />
       <StatMarquee />
-      <TrustBar />
-      <Reveal>
-        <Audiences />
-      </Reveal>
-      <Reveal distance="none">
-        <Assistants />
-      </Reveal>
-      <Reveal distance="none">
-        <Integrations />
-      </Reveal>
-      <Reveal distance="none">
-        <Capabilities />
-      </Reveal>
-      <Reveal>
-        <ChannelGrid />
-      </Reveal>
-      <Reveal>
-        <Testimonials />
-      </Reveal>
-      <Reveal>
-        <Faq items={homeFaqs} title="Questions, answered" id="faq" />
-      </Reveal>
-      <Reveal>
-        <CtaBand />
-      </Reveal>
+      <Audiences />
+      <InAction />
+      <Assistants />
+      <Capabilities />
+      <ChannelGrid />
+      <CtaBand />
+      <Testimonials />
+      <Faq items={homeFaqs} title="Frequently asked questions" id="faq" />
     </>
   );
 }

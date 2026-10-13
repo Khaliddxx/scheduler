@@ -1,47 +1,54 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/cn';
 
 /**
- * Two-state switch with a label either side.
+ * Two-state switch with a label either side, styled after the reference:
+ * a 36x20 pill track (2px inset) with a 16px white knob that slides on `left`,
+ * pink (#FC69FF) on the left state and blue (#618DFF) on the right, both
+ * eased over Tailwind's default 150ms. Labels are plain white 16px (12px on
+ * phones) and do not change weight or colour with the state.
  *
- * Built as a real `role="switch"` button rather than a styled checkbox, so the
- * state is announced and both labels stay clickable. The labels are part of
- * the control: a bare switch between two words leaves a reader guessing which
- * side is on, so the active one brightens and the inactive one dims.
+ * Built as a real `role="switch"` button so the state is announced (it is
+ * named after the right-hand option, so "checked" means that one is on), and
+ * both labels are buttons too, so either side can be picked directly. Controlled
+ * when `isRight` is passed; otherwise it keeps its own state.
  */
 export function ModeToggle({
   left,
   right,
+  isRight: controlled,
   defaultRight = false,
   onChange,
   className,
 }: {
   left: string;
   right: string;
+  isRight?: boolean;
   defaultRight?: boolean;
   onChange?: (isRight: boolean) => void;
   className?: string;
 }) {
-  const [isRight, setIsRight] = useState(defaultRight);
-  const id = useId();
+  const [own, setOwn] = useState(defaultRight);
+  const isRight = controlled ?? own;
 
   const set = (next: boolean) => {
-    setIsRight(next);
+    if (controlled === undefined) setOwn(next);
     onChange?.(next);
   };
 
+  const label =
+    'rounded-[4px] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+
   return (
-    <div className={cn('flex flex-wrap items-center justify-center gap-3', className)}>
-      <button
-        type="button"
-        onClick={() => set(false)}
-        className={cn(
-          'text-body-sm transition-colors',
-          isRight ? 'text-dim hover:text-muted' : 'text-white',
-        )}
-      >
+    <div
+      className={cn(
+        'flex h-[53px] items-center justify-center gap-[8px] p-[6px] text-[16px] leading-[1.5] max-sm:!text-[12px]',
+        className,
+      )}
+    >
+      <button type="button" onClick={() => set(false)} className={label}>
         {left}
       </button>
 
@@ -49,38 +56,22 @@ export function ModeToggle({
         type="button"
         role="switch"
         aria-checked={isRight}
-        aria-labelledby={id}
+        aria-label={right}
         onClick={() => set(!isRight)}
-        className={cn(
-          'relative inline-flex h-[26px] w-[48px] shrink-0 items-center rounded-control px-[3px]',
-          'transition-colors duration-300 shadow-hairline',
-          isRight ? 'bg-accent' : 'bg-primary',
-        )}
+        className="relative h-[20px] w-[36px] shrink-0 rounded-[100px] p-[2px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        style={{ backgroundColor: isRight ? '#618DFF' : '#FC69FF' }}
       >
-        <span
-          className={cn(
-            'block h-5 w-5 rounded-full bg-white shadow-sm',
-            'transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            isRight ? 'translate-x-[22px]' : 'translate-x-0',
-          )}
-        />
+        <span className="relative block h-full w-full">
+          <span
+            className="absolute top-0 h-[16px] w-[16px] rounded-full bg-white transition-[left]"
+            style={{ left: isRight ? 'calc(100% - 16px)' : 0 }}
+          />
+        </span>
       </button>
 
-      <button
-        type="button"
-        onClick={() => set(true)}
-        className={cn(
-          'text-body-sm transition-colors',
-          isRight ? 'text-white' : 'text-dim hover:text-muted',
-        )}
-      >
+      <button type="button" onClick={() => set(true)} className={label}>
         {right}
       </button>
-
-      {/* Names the switch for assistive tech without printing a third label. */}
-      <span id={id} className="sr-only">
-        {left} or {right}
-      </span>
     </div>
   );
 }

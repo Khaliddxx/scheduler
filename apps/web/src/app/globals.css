@@ -95,6 +95,36 @@
     @apply rounded-card-lg bg-bgInner shadow-hairline;
   }
 
+  /*
+   * The reference design's section frame and heading scale. Home-page sections
+   * use these so their widths and rhythm match it exactly: 1360px max, 20px
+   * gutter, 50px (90px from 640px) vertical padding.
+   */
+  .section-pz {
+    @apply mx-auto flex w-full max-w-[1360px] flex-col items-center overflow-hidden px-[20px] py-[50px] sm:py-[90px];
+  }
+
+  .h1-pz {
+    @apply text-center font-jakarta text-[40px] font-extrabold leading-[44px] sm:text-[70px] sm:leading-[77px];
+  }
+
+  .h2-pz {
+    @apply text-center font-jakarta text-[30px] font-bold leading-[33px] sm:text-[48px] sm:leading-[52.8px];
+  }
+
+  /* Floating tiles (reference: muse-float). Tilt, duration and delay per tile via CSS vars. */
+  .muse-tile {
+    transform: rotate(var(--tilt, 0deg));
+    animation: muse-float var(--dur, 6s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .muse-tile {
+      animation: none;
+    }
+  }
+
   /* Gradient-filled feature panel. */
   .panel-brand {
     background-image: linear-gradient(138deg, var(--gradient-via) 10%, #2f007b 76%);
@@ -297,5 +327,15 @@
   [class*='anim-'],
   [class*='anim-'] * {
     animation: none !important;
+  }
+}
+
+@keyframes muse-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-12px) rotate(var(--tilt, 0deg));
   }
 }

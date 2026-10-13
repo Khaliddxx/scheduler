@@ -103,6 +103,89 @@ export function Circled({ className }: { className?: string }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Hero marks                                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The hero's two line drawings, drawn for the boxes the reference layout gives
+ * its marks: 243x200 hugging the left edge, 136x187 hugging the right, 3px
+ * white stroke. Both run off their box on the outer side, so they read as
+ * coming in from beyond the viewport. Original artwork.
+ */
+export function HeroLoop({ className }: { className?: string }) {
+  return (
+    <svg
+      width="243"
+      height="200"
+      viewBox="0 0 243 200"
+      fill="none"
+      className={cn('pointer-events-none', className)}
+      aria-hidden
+      focusable="false"
+    >
+      <path
+        d="M-30 36C20 20 90 18 112 52c18 28-2 66-34 64-32-2-42-34-20-46 26-14 72 8 92 34 22 30 18 72-10 76-28 4-36-30-12-44 28-16 72-8 113 14"
+        stroke="white"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Four-point star with a two-stroke trail, for the right of the hero. */
+export function HeroStar({ className }: { className?: string }) {
+  return (
+    <svg
+      width="136"
+      height="187"
+      viewBox="0 0 136 187"
+      fill="none"
+      className={cn('pointer-events-none', className)}
+      aria-hidden
+      focusable="false"
+    >
+      <g stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M46 104c2 28 14 38 42 40-28 2-40 12-42 40-2-28-14-38-42-40 28-2 40-12 42-40Z" />
+        <path d="M84 70c14-26 32-44 58-54" />
+        <path d="M100 86c12-16 26-26 42-30" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Pink double-stroke underline (263x28), set under the closing words of the
+ * hero headline. Sized in `em` by the caller so it scales with the type.
+ */
+export function ScribbleUnderline({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <svg
+      width="263"
+      height="28"
+      viewBox="0 0 263 28"
+      fill="none"
+      className={cn('pointer-events-none', className)}
+      style={style}
+      aria-hidden
+      focusable="false"
+    >
+      <g stroke="#FC69FF" strokeWidth="3" strokeLinecap="round">
+        <path d="M3 13c64-7 150-9 256-4" />
+        <path d="M44 23c58-6 122-7 190-3" />
+      </g>
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Audience icons                                                      */
 /* ------------------------------------------------------------------ */
 

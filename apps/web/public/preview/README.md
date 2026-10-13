@@ -7,10 +7,14 @@ by accident; the files below were added on purpose with `git add -f`.
 While the site is an in-development prototype, the slots are filled with
 reference media taken from postiz.com's home page, so layouts can be judged with
 real footage in place instead of empty frames: the product clips (`*.webm`),
-the stills that ship with them (`*.webp`, `*.jpg`) and the assistant logos in
-`agents/`. **They are Postiz's marketing assets, used here as temporary
+the stills that ship with them (`*.webp`, `*.jpg`), the assistant logos in
+`agents/`, the channel icons in `socials/` and a few hand-drawn decorations. **They are Postiz's marketing assets, used here as temporary
 stand-ins. The team will replace every one of them with our own recordings
 before launch.**
+
+Several of them show the other product's name on screen: `hero-classic*` shows
+its wordmark in the app header, and the prompts in `hero-agentic*` and
+`chatgpt` ask to schedule posts "in Postiz". Those are the first to replace.
 
 ## How the slot works
 
@@ -51,7 +55,10 @@ Do that, or replace every file, before launch.
 | file | used by | shows | size |
 | --- | --- | --- | --- |
 | `hero-agentic.webm` + `.jpg` | showcase panel (agentic) | an assistant asked for four posts | 1920×1018 |
-| `scheduling.webm` + `.webp` | showcase panel (classic), capabilities: planning | the week calendar | 1396×722 |
+| `hero-agentic-mobile.webm` + `.jpg` | showcase panel (agentic), 640px and below | portrait cut of the same | 1062×1080 |
+| `hero-classic.webm` + `.jpg` | showcase panel (classic) | the calendar, generating posts with AI | 1920×1018 |
+| `hero-classic-mobile.webm` + `.jpg` | showcase panel (classic), 640px and below | portrait cut of the same | 1004×1022 |
+| `scheduling.webm` + `.webp` | capabilities: planning | the week calendar | 1396×722 |
 | `chatgpt.webm` + `.webp` | assistants grid | ChatGPT asked for two posts | 1280×920 |
 | `claude-mcp.webm` + `.webp` | assistants grid | Claude desktop over MCP | 1320×920 |
 | `claude.webm` + `.webp` | assistants grid | a terminal session | 1280×920 |
@@ -63,5 +70,13 @@ Do that, or replace every file, before launch.
 | `3.webm` | capabilities: team | roles and permissions | 900×738 |
 | `4.webm` | capabilities: preview | a post previewed in place | 1396×796 |
 | `5.webm` | capabilities: analytics | analytics tiles | 1396×1200 |
-| `api.webm` + `.webp` | automation: REST API | an API client calling the public API | 1650×700 |
-| `agents/*.svg` | assistants grid, integration pages | assistant logos (all 19 from postiz.com; the grid uses `chatgpt`, `claude`, `claude-code`, `codex`, `cursor`, `grok-bot`, `hermes`, `muse`) | — |
+| `api.webm` + `.webp` | assistants: "Automate" card | an API client calling the public API | 1650×700 |
+| `in-action.webm` (+ optional `.webp`) | home: "See it in action" frame | a full product demo; until it exists the frame shows empty with a play badge | 1280×720 (16:9) |
+| `agents/*.svg` | header AI Agents menu, hero headline, integration pages | assistant tile logos: the 19 files from postiz.com plus `gemini`, `deepseek`, `kimi` taken from its header markup | 24px tiles |
+| `agents/glyphs/hermes-icon.svg` | assistants grid (Hermes title mark) | white Hermes mark; the other title marks are inline SVGs in `assistants-glyphs.tsx` | 37×37 |
+| `socials/<slug>.svg` | hero icon rows, header Channels menu, channel wall | full-colour app icons, one per sellable channel, rendered by `SocialIcon` | 70×70 |
+| `capabilities/{3,4,5}.webp` | capabilities panels | desktop stills for clips that ship without one (first frame of the clip) | as the clip |
+| `capabilities/mobile/*.webm` + `.webp` | capabilities panels at 640px and below | the phone cut of each capabilities clip, with its first frame as the still | phone crop |
+| `capabilities/inoneplace-underline.svg`, `channel-grid/providers-underline.svg`, `faq/questions-underline.svg` | section headings | hand-drawn underlines | — |
+| `cta-band/doodle-cta.svg`, `doodle-cta-mobile.svg` | mid-page CTA band | arrow doodles | — |
+| `testimonials/heart.svg` | testimonials heading | heart doodle | — |
