@@ -50,7 +50,7 @@ export function Testimonials() {
   return (
     <section id="testimonials" className="section-pz gap-[60px]">
       <div className="flex flex-col-reverse items-center gap-[13px] sm:flex-row">
-        <h2 className="h2-pz">{HEADING.title}</h2>
+        <h2 className="h2-pz text-balance">{HEADING.title}</h2>
         {heart ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={heart} alt="" aria-hidden width={57} height={51} loading="lazy" />
