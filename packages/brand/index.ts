@@ -63,6 +63,13 @@ export const appUrl = (path = ''): string =>
 export const loginUrl = (): string => appUrl(brand.app.loginPath);
 export const registerUrl = (): string => appUrl(brand.app.registerPath);
 
+/**
+ * Where the documentation lives. Defaults to the marketing site's own /docs
+ * page; set NEXT_PUBLIC_DOCS_URL (e.g. https://docs.example.com) once the
+ * separate docs site is up and every docs link in the nav and footer follows.
+ */
+export const docsUrl = (): string => env('NEXT_PUBLIC_DOCS_URL', '/docs');
+
 /** The marketing site's own origin, used for canonical URLs and OG tags. */
 export const siteUrl = (path = ''): string => {
   const origin = env('NEXT_PUBLIC_SITE_URL', `https://${brand.domain}`).replace(/\/$/, '');
