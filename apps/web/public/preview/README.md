@@ -1,16 +1,16 @@
 # Reference media slot
 
 This folder is the media slot for the home page and the integration pages.
-Everything in it except this README is **ignored by git**, so nothing dropped
-here can be committed or deployed by accident.
+The folder is **ignored by git**, so a new file dropped here is never committed
+by accident; the files below were added on purpose with `git add -f`.
 
-The files it is designed around were captured from postiz.com on 2026-10-12 so
-the page could be judged with real footage in place instead of empty frames:
-the product clips (`*.webm`), the stills that ship with them (`*.webp`,
-`*.jpg`) and the assistant logos in `agents/`. **Those are Postiz's marketing
-assets. They are not licensed for this site and none of them may be live at
-launch.** They exist for one reason: to decide, slot by slot, what to record for
-real.
+While the site is an in-development prototype, the slots are filled with
+reference media taken from postiz.com's home page, so layouts can be judged with
+real footage in place instead of empty frames: the product clips (`*.webm`),
+the stills that ship with them (`*.webp`, `*.jpg`) and the assistant logos in
+`agents/`. **They are Postiz's marketing assets, used here as temporary
+stand-ins. The team will replace every one of them with our own recordings
+before launch.**
 
 ## How the slot works
 
@@ -18,25 +18,23 @@ real.
   time. Present: a looping, muted video with `<name>.webp|jpg` as its poster.
   Absent: a quiet empty frame with the slot's name in it. Nothing breaks when a
   file is missing.
-- `src/lib/guards.ts` **refuses to build** while any clip is here unless
-  `ALLOW_PLACEHOLDERS=1` is set — the same switch that allows the placeholder
-  product name and the invented testimonials. Dropping that variable before
-  launch therefore blocks any build that still contains this folder.
+- `src/lib/guards.ts` prints a warning at build and dev time while any clip
+  is here, alongside the warnings for the placeholder product name and the
+  invented testimonials. `ALLOW_PLACEHOLDERS=1` silences all three. It does not
+  stop the build, so check the build log for it before launch.
 
-## Putting the reference files on a deployed preview
+## What is committed
 
-Because the folder is ignored, a deploy only carries what you add on purpose:
+The reference files listed below are committed (with `git add -f`, because the
+folder is ignored) so the deployed prototype shows them. To take them back out:
 
 ```sh
-git add -f apps/web/public/preview
-git commit -m "Add reference footage for layout review"
-git push
+git rm -r --cached apps/web/public/preview
+git add -f apps/web/public/preview/README.md
+git commit -m "Remove reference footage"
 ```
 
-That is a deliberate step, taken by you, and it is reversible: `git rm -r
---cached apps/web/public/preview` and a commit takes them back out. Do it
-before launch, and keep `ALLOW_PLACEHOLDERS` unset in the launch environment so
-the guard above can catch anything left behind.
+Do that, or replace every file, before launch.
 
 ## Replacing a file
 
@@ -54,16 +52,16 @@ the guard above can catch anything left behind.
 | --- | --- | --- | --- |
 | `hero-agentic.webm` + `.jpg` | showcase panel (agentic) | an assistant asked for four posts | 1920×1018 |
 | `scheduling.webm` + `.webp` | showcase panel (classic), capabilities: planning | the week calendar | 1396×722 |
-| `chatgpt.webm` | assistants grid | ChatGPT asked for two posts | 1280×920 |
-| `claude-mcp.webm` | assistants grid | Claude desktop over MCP | 1320×920 |
-| `claude.webm` | assistants grid | a terminal session | 1280×920 |
-| `grok-bot.webm` | assistants grid | a bot repurposing a top post | 1282×892 |
-| `hermes.webm` | assistants grid | a messaging agent | 1280×892 |
-| `muse.webm` | assistants grid | a chat agent | 1280×920 |
+| `chatgpt.webm` + `.webp` | assistants grid | ChatGPT asked for two posts | 1280×920 |
+| `claude-mcp.webm` + `.webp` | assistants grid | Claude desktop over MCP | 1320×920 |
+| `claude.webm` + `.webp` | assistants grid | a terminal session | 1280×920 |
+| `grok-bot.webm` + `.webp` | assistants grid | a bot repurposing a top post | 1282×892 |
+| `hermes.webm` + `.webp` | assistants grid | a messaging agent | 1280×892 |
+| `muse.webm` + `.webp` | assistants grid | a chat agent | 1280×920 |
 | `ai-agents.webm` + `.webp` | capabilities: agents | a grid of assistant logos | 900×722 |
 | `design-ai.webm` + `.webp` | capabilities: editor | the image editor | 1396×1000 |
 | `3.webm` | capabilities: team | roles and permissions | 900×738 |
 | `4.webm` | capabilities: preview | a post previewed in place | 1396×796 |
 | `5.webm` | capabilities: analytics | analytics tiles | 1396×1200 |
-| `api.webm` | automation: REST API | an API client calling the public API | 1650×700 |
-| `agents/*.svg` | assistants grid | assistant logos | — |
+| `api.webm` + `.webp` | automation: REST API | an API client calling the public API | 1650×700 |
+| `agents/*.svg` | assistants grid, integration pages | assistant logos (all 19 from postiz.com; the grid uses `chatgpt`, `claude`, `claude-code`, `codex`, `cursor`, `grok-bot`, `hermes`, `muse`) | — |
