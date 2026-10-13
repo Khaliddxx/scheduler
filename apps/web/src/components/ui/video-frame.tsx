@@ -15,8 +15,12 @@ export { previewMediaPresent } from '@/lib/preview-media';
  *
  * What is in `public/preview/` right now, and the rules around it, are in that
  * folder's README. In short: reference footage, to be replaced with your own
- * recordings under the same filenames; the build guard in lib/guards.ts refuses
- * a launch build while any of it remains.
+ * recordings under the same filenames; lib/guards.ts warns at build time while
+ * any of it remains.
+ *
+ * `fit="cover"` fills whatever box the parent gives it instead of sizing itself
+ * from `ratio`: the poster sits underneath as an image and the video covers it,
+ * both object-cover, the way the reference design frames its clips.
  */
 export function VideoFrame({
   name,
@@ -25,14 +29,50 @@ export function VideoFrame({
   /** Matches the source footage so the card does not jump when it loads. */
   ratio = '16 / 10',
   label,
+  fit = 'ratio',
 }: {
   name: string;
   fallback?: ReactNode;
   className?: string;
   ratio?: string;
   label?: string;
+  /** `ratio` sizes the frame from `ratio`; `cover` fills the parent box. */
+  fit?: 'ratio' | 'cover';
 }) {
   const src = previewClip(name);
+  const poster = previewPoster(name);
+
+  if (fit === 'cover') {
+    return (
+      <div className={cn('absolute inset-0', className)}>
+        {poster ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={poster} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : null}
+        {src ? (
+          <video
+            className="absolute inset-0 z-[1] h-full w-full object-cover"
+            src={src}
+            poster={poster ?? undefined}
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden
+            preload="metadata"
+          />
+        ) : poster ? null : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="px-6 text-center text-body-xs leading-relaxed text-white/40">
+              {label ?? 'Media slot'}
+              <br />
+              <span className="text-white/25">drop {name}.webm into public/preview/</span>
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (!src) {
     if (fallback) return <>{fallback}</>;
@@ -60,7 +100,7 @@ export function VideoFrame({
       className={cn('w-full rounded-[14px] shadow-hairline', className)}
       style={{ aspectRatio: ratio }}
       src={src}
-      poster={previewPoster(name) ?? undefined}
+      poster={poster ?? undefined}
       autoPlay
       loop
       muted

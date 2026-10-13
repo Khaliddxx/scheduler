@@ -14,8 +14,19 @@ const config: Config = {
     '../../packages/brand/*.ts',
   ],
   theme: {
+    // Breakpoints of the reference design. `mobile` and a 1360px `2xl` are not
+    // Tailwind defaults; ordered so that larger screens win in the cascade.
+    screens: {
+      mobile: '376px',
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1360px',
+    },
     extend: {
       colors: {
+        pink: '#FF4CE2',
         bg: 'var(--bg)',
         bgInner: 'var(--bg-inner)',
         bgLine: 'var(--bg-line)',
@@ -36,6 +47,15 @@ const config: Config = {
       fontFamily: {
         display: ['var(--font-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['var(--font-body)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // Aliases matching the reference markup: Plus Jakarta Sans and DM Sans.
+        jakarta: ['var(--font-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        dm: ['var(--font-body)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      gridTemplateColumns: {
+        15: 'repeat(15, minmax(0, 1fr))',
+      },
+      spacing: {
+        15: '3.75rem',
       },
       borderRadius: {
         card: brandJson.radii.card,
@@ -74,6 +94,12 @@ const config: Config = {
       backgroundImage: {
         brand: `linear-gradient(to right, ${c.gradientFrom}, ${c.gradientVia}, ${c.gradientTo})`,
         'brand-diag': `linear-gradient(138deg, ${c.gradientVia} 10%, #2F007B 76%)`,
+        // Card fills from the reference design.
+        boxOne: 'linear-gradient(327deg, #164cd9 4.25%, #002584 74.87%)',
+        boxTwo: 'linear-gradient(199deg, #b611b0 -9.68%, #4a0047 109.72%)',
+        boxThree: 'linear-gradient(52deg, #7b08d5 9.85%, #390053 106.98%)',
+        boxFour: 'linear-gradient(138deg, #4c27e1 9.56%, #2f007b 76.16%)',
+        gradientBlue: 'linear-gradient(238deg, #5608d5, #24005e)',
       },
       keyframes: {
         marqueeX: {
