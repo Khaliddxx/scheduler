@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, type FormEvent, type ReactNode } from 'react';
+import { DoubleChevron } from '@/components/layout/header-icons';
 import { FORM, topics } from '@/content/contact';
 import { cn } from '@/lib/cn';
 
@@ -16,23 +16,39 @@ import { cn } from '@/lib/cn';
  *  - the `website` honeypot input, which that handler uses to drop bots.
  *
  * The topic list lives in src/content/contact.ts and its labels are the submitted
- * values, because the route validates against them.
+ * values, because the route validates against them. They are rendered as a radio
+ * group styled as the reference's filter chips; the checked one is submitted as
+ * `topic`, exactly as the old `<select>` was.
  *
  * Fields are uncontrolled and read through FormData on submit. That keeps this file
  * small and the server the authority on what is valid — the checks below are a
  * courtesy so an obvious mistake does not cost a round trip, not a second
  * validation layer to keep in step. Client errors are shown exactly like server
  * ones, and clear as soon as a field is edited.
+ *
+ * Visuals follow the reference's only text field (the grey 20px-radius well
+ * around its tool textarea) inside its standard dark card, with a pink border
+ * on focus so keyboard users can see where they are.
  */
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 type Errors = Record<string, string>;
 
-const field =
-  'w-full rounded-input bg-surface px-4 py-3 text-body-sm text-white shadow-hairline ' +
-  'transition-colors placeholder:text-dim hover:bg-bgInner';
+const CARD = 'rounded-[20px] border border-[#FFFFFF0D] bg-[#1A1919]';
 
-const invalid = 'shadow-[inset_0_0_0_1px_var(--danger)]';
+/** The grey well around each field. */
+const well =
+  'flex rounded-[20px] border border-[#3D3D3D] bg-[#3D3D3D] p-1 transition-colors ' +
+  'hover:border-[#5a5a5a] focus-within:border-pink focus-within:shadow-[0_0_0_1px_#FF4CE2]';
+
+const wellInvalid = '!border-[#ff0033] shadow-[0_0_0_1px_#ff0033]';
+
+/** The field itself: transparent, 16/22 on phones and 19/24.74 from 640px. */
+const control =
+  'w-full bg-transparent text-[16px] leading-[22px] text-white outline-none ' +
+  'placeholder:text-white/40 sm:text-[19px] sm:leading-[24.74px]';
+
+const label = 'text-[16px] font-[500] leading-[20.83px] text-white';
 
 const asString = (value: FormDataEntryValue | undefined): string =>
   typeof value === 'string' ? value.trim() : '';
@@ -50,9 +66,18 @@ const validate = (data: Record<string, FormDataEntryValue>): Errors => {
 
 function FieldError({ id, children }: { id: string; children: string }) {
   return (
-    <p id={id} className="text-body-xs text-danger">
+    <p id={id} className="text-[14px] leading-[18px] text-[#ff0033]">
       {children}
     </p>
+  );
+}
+
+function Frame({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex w-full max-w-[900px] flex-col items-center gap-[40px] sm:gap-[60px]">
+      <h2 className="h2-pz">{FORM.legend}</h2>
+      {children}
+    </div>
   );
 }
 
@@ -116,128 +141,151 @@ export function ContactForm() {
 
   if (status === 'sent') {
     return (
-      <div className="card flex flex-col items-start gap-3 p-7 sm:p-8" role="status">
-        <h2 className="font-display text-heading-sm text-white">{FORM.success.title}</h2>
-        <p className="max-w-[48ch] text-body-md text-muted">{message}</p>
-      </div>
+      <Frame>
+        <div
+          className={cn(CARD, 'flex w-full flex-col items-center gap-3 p-6 text-center sm:p-8')}
+          role="status"
+        >
+          <div className="text-[32px]" aria-hidden="true">
+            ✅
+          </div>
+          <p className="font-jakarta text-[22px] font-[700] leading-[26px]">{FORM.success.title}</p>
+          <p className="max-w-[48ch] text-[16px] leading-[22px] text-[#d1d1d1]">{message}</p>
+        </div>
+      </Frame>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="card flex flex-col gap-5 p-7 sm:p-8">
-      <h2 className="font-display text-heading-sm text-white">{FORM.legend}</h2>
-
-      {/* Honeypot, consumed by the API route. Visually and programmatically hidden. */}
-      <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="website">Leave this empty</label>
-        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="name" className="text-body-sm font-medium text-white">
-            {FORM.name.label}
-          </label>
-          <input
-            id="name"
-            name="name"
-            required
-            autoComplete={FORM.name.autoComplete}
-            onChange={() => clearError('name')}
-            className={cn(field, errors.name && invalid)}
-            aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? 'name-error' : undefined}
-          />
-          {errors.name ? <FieldError id="name-error">{errors.name}</FieldError> : null}
+    <Frame>
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        aria-label={FORM.legend}
+        className={cn(CARD, 'relative flex w-full flex-col gap-6 p-6 sm:p-8')}
+      >
+        {/* Honeypot, consumed by the API route. Visually and programmatically hidden. */}
+        <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="website">Leave this empty</label>
+          <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-body-sm font-medium text-white">
-            {FORM.email.label}
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            inputMode="email"
-            required
-            autoComplete={FORM.email.autoComplete}
-            onChange={() => clearError('email')}
-            className={cn(field, errors.email && invalid)}
-            aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? 'email-error' : 'email-hint'}
-          />
-          {errors.email ? (
-            <FieldError id="email-error">{errors.email}</FieldError>
-          ) : (
-            <p id="email-hint" className="text-body-xs text-dim">
-              {FORM.email.hint}
-            </p>
-          )}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col gap-3">
+            <label htmlFor="name" className={label}>
+              {FORM.name.label}
+            </label>
+            <div className={cn(well, errors.name && wellInvalid)}>
+              <input
+                id="name"
+                name="name"
+                required
+                autoComplete={FORM.name.autoComplete}
+                onChange={() => clearError('name')}
+                className={cn(control, 'px-5 py-4')}
+                aria-invalid={Boolean(errors.name)}
+                aria-describedby={errors.name ? 'name-error' : undefined}
+              />
+            </div>
+            {errors.name ? <FieldError id="name-error">{errors.name}</FieldError> : null}
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <label htmlFor="email" className={label}>
+              {FORM.email.label}
+            </label>
+            <div className={cn(well, errors.email && wellInvalid)}>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                inputMode="email"
+                required
+                autoComplete={FORM.email.autoComplete}
+                onChange={() => clearError('email')}
+                className={cn(control, 'px-5 py-4')}
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? 'email-error' : 'email-hint'}
+              />
+            </div>
+            {errors.email ? (
+              <FieldError id="email-error">{errors.email}</FieldError>
+            ) : (
+              <p id="email-hint" className="text-[14px] leading-[18px] text-[#d1d1d1]">
+                {FORM.email.hint}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="topic" className="text-body-sm font-medium text-white">
-          {FORM.topic.label}
-        </label>
-        <select
-          id="topic"
-          name="topic"
-          defaultValue={topics[0]}
-          className={cn(field, 'appearance-none pr-11')}
-          style={{
-            // Chevron drawn from two gradients: no icon dependency, and the native
-            // select keeps its own keyboard and mobile behaviour.
-            backgroundImage:
-              'linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%)',
-            backgroundPosition: 'calc(100% - 22px) 55%, calc(100% - 16px) 55%',
-            backgroundSize: '6px 6px, 6px 6px',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          {topics.map((topic) => (
-            <option key={topic} value={topic} className="bg-bgInner">
-              {topic}
-            </option>
-          ))}
-        </select>
-      </div>
+        <fieldset>
+          <legend className={cn(label, 'mb-3')}>{FORM.topic.label}</legend>
+          <div className="flex flex-wrap gap-[6px]">
+            {topics.map((topic, i) => (
+              <label key={topic} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="topic"
+                  value={topic}
+                  defaultChecked={i === 0}
+                  className="peer sr-only"
+                />
+                <span
+                  className={cn(
+                    'block rounded-full px-[14px] py-[6px] text-[13px] transition-all sm:text-[14px]',
+                    'bg-[#3D3D3D] text-white hover:bg-[#4d4d4d]',
+                    'peer-checked:bg-white peer-checked:text-black',
+                    'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-pink',
+                  )}
+                >
+                  {topic}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="message" className="text-body-sm font-medium text-white">
-          {FORM.message.label}
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          required
-          rows={6}
-          placeholder={FORM.message.placeholder}
-          onChange={() => clearError('message')}
-          className={cn(field, 'resize-y leading-[1.6]', errors.message && invalid)}
-          aria-invalid={Boolean(errors.message)}
-          aria-describedby={errors.message ? 'message-error' : undefined}
-        />
-        {errors.message ? <FieldError id="message-error">{errors.message}</FieldError> : null}
-      </div>
+        <div className="flex flex-col gap-3">
+          <label htmlFor="message" className={label}>
+            {FORM.message.label}
+          </label>
+          <div className={cn(well, errors.message && wellInvalid)}>
+            <textarea
+              id="message"
+              name="message"
+              required
+              rows={5}
+              placeholder={FORM.message.placeholder}
+              onChange={() => clearError('message')}
+              className={cn(control, 'resize-y p-5')}
+              aria-invalid={Boolean(errors.message)}
+              aria-describedby={errors.message ? 'message-error' : undefined}
+            />
+          </div>
+          {errors.message ? <FieldError id="message-error">{errors.message}</FieldError> : null}
+        </div>
 
-      {status === 'error' && message ? (
-        <p role="alert" className="text-body-sm leading-[1.5] text-danger">
-          {message}
-        </p>
-      ) : null}
+        {status === 'error' && message ? (
+          <p role="alert" className="text-[16px] leading-[22px] text-[#ff0033]">
+            {message}
+          </p>
+        ) : null}
 
-      <div>
-        <Button
-          type="submit"
-          disabled={status === 'sending'}
-          size="lg"
-          withChevron={status !== 'sending'}
-        >
-          {status === 'sending' ? FORM.submitting : FORM.submit}
-        </Button>
-      </div>
-    </form>
+        <div>
+          <button
+            type="submit"
+            disabled={status === 'sending'}
+            className={cn(
+              'flex h-fit w-full cursor-pointer items-center justify-center gap-[6px] whitespace-nowrap rounded-full bg-white font-[500] text-[#0e0e0e] stroke-[#0e0e0e] transition-all',
+              'hover:bg-pink hover:text-white hover:stroke-white disabled:cursor-wait disabled:opacity-60',
+              'py-[12px] pl-[24px] pr-[16px] text-[16px] leading-[20.83px] sm:w-fit sm:py-4 sm:!pl-8 sm:!pr-6 sm:text-[19px] sm:leading-[25px] min-[1024px]:leading-[24.74px]',
+            )}
+          >
+            {status === 'sending' ? FORM.submitting : FORM.submit}
+            {status === 'sending' ? null : <DoubleChevron className="h-5 w-5 md:h-6 md:w-6" />}
+          </button>
+        </div>
+      </form>
+    </Frame>
   );
 }

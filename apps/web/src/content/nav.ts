@@ -5,6 +5,10 @@
  * the brand config so they follow the app URL rather than being hardcoded.
  */
 
+import { docsUrl } from '@scheduler/brand';
+
+const isExternal = (href: string): boolean => /^https?:\/\//.test(href);
+
 export interface NavLink {
   label: string;
   href: string;
@@ -35,7 +39,7 @@ export const primaryNav: NavGroup[] = [
   {
     label: 'Resources',
     children: [
-      { label: 'Docs', href: '/docs', description: 'Setup and how-to guides' },
+      { label: 'Docs', href: docsUrl(), external: isExternal(docsUrl()), description: 'Setup and how-to guides' },
       { label: 'Compare', href: '/compare', description: 'How we differ from the alternatives' },
       { label: 'Open source', href: '/open-source', description: 'The engine under the hood' },
     ],
@@ -62,7 +66,7 @@ export const footerColumns: FooterColumn[] = [
   {
     title: 'Resources',
     links: [
-      { label: 'Documentation', href: '/docs' },
+      { label: 'Documentation', href: docsUrl(), external: isExternal(docsUrl()) },
       { label: 'Licence and source', href: '/open-source' },
       { label: 'Self-host it yourself', href: '/open-source#self-host' },
     ],
@@ -133,7 +137,7 @@ export interface HeaderNavEntry {
  */
 export const headerNav: HeaderNavEntry[] = [
   { label: 'AI Agents', menu: 'agents' },
-  { label: 'Dev Docs', href: '/docs' },
+  { label: 'Dev Docs', href: docsUrl() },
   { label: 'Channels', menu: 'channels' },
   { label: 'Pricing', href: '/pricing' },
 ];

@@ -80,3 +80,7 @@ Do that, or replace every file, before launch.
 | `capabilities/inoneplace-underline.svg`, `channel-grid/providers-underline.svg`, `faq/questions-underline.svg` | section headings | hand-drawn underlines | — |
 | `cta-band/doodle-cta.svg`, `doodle-cta-mobile.svg` | mid-page CTA band | arrow doodles | — |
 | `testimonials/heart.svg` | testimonials heading | heart doodle | — |
+| `integrations/<agent>-hero.webp`, `-hero.webm`, `-hero-mobile.webm` (claude, chatgpt, claude-code, codex, cursor, gemini) | integration page heroes and closing bands | plush mascot of each assistant's logo, with a phone cut | 694×834 |
+| `channels/hero-doodle.svg`, `channels/icon-{bulb,doc,chat,star}.svg` | channel pages | hero underline and feature-card icons | 156×15, 100×100 |
+| `pricing/{clover,star,clover-mob,star-mob,popular-decoration}.svg`, `pricing/tomado.png` | pricing page | hero doodles and the popular plan's flourish | — |
+| `company/*.svg` | about, contact, agencies, compare pages | page-opener doodles, underline, tornado doodles, tick, CTA doodle | — |

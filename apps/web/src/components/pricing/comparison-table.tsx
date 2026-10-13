@@ -1,146 +1,255 @@
-import { MatrixMark } from '@/components/pricing/glyphs';
-import { RIBBON, TABLE } from '@/components/pricing/copy';
+'use client';
+
+import { useId, useState } from 'react';
+import { registerUrl } from '@scheduler/brand';
+import { cn } from '@/lib/cn';
+import { BillingToggle } from '@/components/pricing/billing-toggle';
+import { Cross, InfinityMark, InfoCircle, Tick } from '@/components/pricing/glyphs';
+import { PillLink } from '@/components/pricing/pill-link';
+import { CONTACT_HREF, QUOTED_NOTE, QUOTED_PRICE, RIBBON, TABLE } from '@/components/pricing/copy';
+import { isQuoted, money } from '@/components/pricing/price';
 import {
   comparisonMatrix,
-  planColumns,
-  popularPlan,
+  plans,
+  priceFor,
+  type BillingPeriod,
   type Cell,
+  type MatrixRow,
+  type Plan,
 } from '@/content/pricing';
 
 /**
- * The full feature matrix.
+ * The feature comparison, laid out as the reference's: not a <table> but a
+ * 200px label column beside a four-column grid of rounded #1A1919 cells.
  *
- * A real table, because that is what this is: `<caption>`, `scope="col"` on the
- * plan headers, `scope="row"` on every feature name and `scope="colgroup"` on the
- * section bands, so a screen-reader user can walk a cell and hear which feature on
- * which plan it belongs to. Column order comes from `planColumns`, so the table and
- * the cards above it can never disagree about the order of the ladder.
+ * From 1024px: a header row (a "Plans:" note and its own billing switch on the
+ * left, one column card per plan on the right; the popular plan's card is the
+ * purple gradient with a "Popular" pill), then one row per feature with a cell
+ * per plan. Ticks are green, crosses red, "Unlimited" is an infinity sign.
  *
- * Two things about the scrolling, both deliberate:
+ * Below 1024px the column cards shrink to four 63px tabs and every row shows only
+ * the selected plan's cell next to the label (each 50% wide). Tapping a tab
+ * selects its plan; the selected tab takes the gradient. Nothing is wider than
+ * the screen, so the page never scrolls sideways.
  *
- * 1. The panel scrolls HORIZONTALLY ONLY, and is not height-capped.
+ * The rows come straight from `comparisonMatrix`; its section titles head each
+ * group in the same type as the "Plans:" note. A row's `hint` becomes the
+ * reference's tooltip (shown on hover and on keyboard focus of its info button).
  *
- *    An earlier version capped the height so that `position: sticky` would work
- *    on the header row — sticky resolves against the nearest scrollport, and a
- *    horizontally scrollable wrapper is a scrollport in both axes, so a header
- *    stuck to the page viewport is not achievable inside one.
- *
- *    That reasoning is correct and the conclusion was still wrong. On a pricing
- *    page a height-capped matrix reads as the whole matrix: a visitor sees the
- *    first section, no affordance telling them four more exist, and never
- *    discovers the features that would have sold them the higher tier. A
- *    sticky header is not worth paying for with hidden content.
- *
- *    So: no cap, no sticky header. The feature-name column still sticks left,
- *    which is the one that matters — it is what makes the table readable while
- *    scrolling sideways on a phone. The page itself never scrolls sideways,
- *    because the scroll is contained here inside `.shell`.
- *
- * 2. The table uses `border-separate`, not the collapsed default. Collapsed borders
- *    belong to the table rather than to its cells, so they stay behind while a
- *    sticky cell moves and leave visible seams. Separated borders travel with the
- *    cell they are on.
- *
- * Sticky cells must be opaque or the rows show through them, which is why every one
- * of them carries `bg-bgInner` — the same colour as the panel, so the joins are
- * invisible until something scrolls under them.
+ * The billing switch here is independent of the one above the plan cards, as on
+ * the reference.
  */
 
-/** Feature name column plus one column per plan. */
-const COL_COUNT = planColumns.length + 1;
+const SOLO_ROW = 'Team members';
 
-const MARK_LABELS = { included: TABLE.included, notIncluded: TABLE.notIncluded };
+/** A plan has a single seat when the matrix says its "Team members" value is 1. */
+const isSolo = (plan: Plan): boolean =>
+  comparisonMatrix.some((s) => s.rows.some((r) => r.label === SOLO_ROW && r.values[plan.id] === 1));
 
-function MatrixCell({ value }: { value: Cell | undefined }) {
-  // An absent key is treated exactly like `false`: neutral, not a failure.
-  if (value === undefined || typeof value === 'boolean') {
-    return <MatrixMark present={value === true} labels={MARK_LABELS} />;
+function CellValue({ value }: { value: Cell | undefined }) {
+  // An absent key is treated exactly like `false`.
+  if (value === undefined || value === false) {
+    return (
+      <>
+        <Cross />
+        <span className="sr-only">{TABLE.notIncluded}</span>
+      </>
+    );
   }
-  return <span className="text-muted">{value}</span>;
+  if (value === true) {
+    return (
+      <>
+        <Tick />
+        <span className="sr-only">{TABLE.included}</span>
+      </>
+    );
+  }
+  if (value === 'Unlimited') {
+    return (
+      <>
+        <InfinityMark />
+        <span className="sr-only">{TABLE.unlimited}</span>
+      </>
+    );
+  }
+  return <span className="text-center leading-[22px]">{value}</span>;
+}
+
+function ValueCell({ plan, value }: { plan: Plan; value: Cell | undefined }) {
+  return (
+    <div className="flex min-h-[54px] items-center justify-center rounded-lg bg-[#1A1919] p-3 text-[18px] font-normal text-white">
+      <span className="sr-only">{plan.name}: </span>
+      <CellValue value={value} />
+    </div>
+  );
+}
+
+function ColumnCard({
+  plan,
+  period,
+  active,
+  onSelect,
+}: {
+  plan: Plan;
+  period: BillingPeriod;
+  active: boolean;
+  onSelect: () => void;
+}) {
+  const quoted = isQuoted(plan);
+  const popular = plan.popular === true;
+  const note = quoted ? null : TABLE.period[period];
+
+  return (
+    <div
+      className={cn(
+        'relative flex h-[63px] flex-col items-center justify-around rounded-[10px] border border-white/10 bg-[#1A1919] from-[#682EE1] to-[#2A0772] p-0',
+        'min-[1024px]:block min-[1024px]:h-full min-[1024px]:w-full min-[1024px]:items-start min-[1024px]:rounded-[20px] min-[1024px]:p-3 min-[1440px]:p-5',
+        popular && 'min-[1024px]:bg-gradient-to-bl',
+        active && 'max-[1023px]:bg-gradient-to-bl',
+      )}
+    >
+      <p className="font-jakarta text-[12px] font-medium leading-[10px] min-[1024px]:text-[20px] min-[1024px]:leading-[22px]">
+        {plan.name}
+      </p>
+      <p className="font-jakarta text-[13px] font-semibold leading-[12px] md:my-3 min-[1024px]:text-[30px] min-[1024px]:leading-[33px]">
+        {quoted ? QUOTED_PRICE : money(priceFor(plan, period), plan.currency)}
+      </p>
+      <p className="text-[11px] leading-[11px] text-[#D1D1D1] min-[1024px]:hidden">
+        <span>{note ? note.short : QUOTED_NOTE}</span>
+      </p>
+      <p className="mb-6 hidden text-[#D1D1D1] min-[1024px]:block min-[1024px]:text-[14px] min-[1024px]:leading-[15.4px] min-[1440px]:text-[16px] min-[1440px]:leading-[17.6px]">
+        <span>{note ? note.long : QUOTED_NOTE}</span>
+      </p>
+      <div className="hidden justify-center min-[1024px]:flex">
+        <PillLink
+          href={quoted ? CONTACT_HREF : registerUrl()}
+          variant={popular ? 'primary' : 'secondary'}
+          size="compact"
+        >
+          {plan.cta}
+          <span className="sr-only">, {plan.name} plan</span>
+        </PillLink>
+      </div>
+      {isSolo(plan) ? (
+        <p className="mt-3 hidden text-[12px] leading-[14px] text-[#FF6B6B] min-[1024px]:block">
+          {TABLE.soloNote}
+        </p>
+      ) : null}
+      {popular ? (
+        <div className="absolute right-4 top-4 hidden min-[1024px]:block">
+          <div className="w-fit rounded-full bg-white/20 px-4 py-2">
+            <p className="text-[14px] leading-[18.23px]">{RIBBON}</p>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Below 1024px the whole card is a tab that picks the plan shown in the rows. */}
+      <button
+        type="button"
+        aria-pressed={active}
+        aria-label={TABLE.showPlan(plan.name)}
+        onClick={onSelect}
+        className="absolute inset-0 rounded-[10px] min-[1024px]:hidden"
+      />
+    </div>
+  );
+}
+
+function RowLabel({ row }: { row: MatrixRow }) {
+  const tipId = useId();
+  return (
+    <div className="group relative w-[50%] text-[18px] min-[1024px]:w-[200px]">
+      <span className="flex items-center gap-1.5">
+        {row.label}
+        {row.hint ? (
+          <button
+            type="button"
+            aria-describedby={tipId}
+            className="cursor-help rounded-full"
+          >
+            <InfoCircle />
+            <span className="sr-only">{TABLE.moreAbout(row.label)}</span>
+          </button>
+        ) : null}
+      </span>
+      {row.hint ? (
+        <div
+          id={tipId}
+          role="tooltip"
+          className="invisible absolute bottom-full left-0 z-50 mb-2 w-64 rounded-lg border border-gray-700 bg-gray-900 p-3 text-sm text-white opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
+        >
+          {row.hint}
+          <div className="absolute left-4 top-full h-0 w-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-900" />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function FeatureRow({ row, activeId }: { row: MatrixRow; activeId: string }) {
+  const active = plans.find((p) => p.id === activeId) ?? plans[0];
+  return (
+    <div className="flex w-full items-center justify-between gap-5">
+      <RowLabel row={row} />
+      <div className="hidden grid-cols-4 gap-1 lg:grid min-[1024px]:w-[calc(100%-200px)]">
+        {plans.map((plan) => (
+          <ValueCell key={plan.id} plan={plan} value={row.values[plan.id]} />
+        ))}
+      </div>
+      <div className="grid w-[50%] grid-cols-1 lg:hidden">
+        <ValueCell plan={active} value={row.values[active.id]} />
+      </div>
+    </div>
+  );
 }
 
 export function ComparisonTable() {
+  const [period, setPeriod] = useState<BillingPeriod>('monthly');
+  const [activeId, setActiveId] = useState<string>(plans[0].id);
+
   return (
-    <div className="card-lg overflow-hidden">
-      <div className="scrollbar-slim overflow-x-auto">
-        <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left">
-          {/* The section above already carries a visible heading, so the caption is
-              the table's accessible name rather than a second printed title. */}
-          <caption className="sr-only">{TABLE.caption}</caption>
-
-          <thead>
-            <tr>
-              <th
-                scope="col"
-                className="sticky left-0 z-30 w-[240px] min-w-[240px] border-b border-line bg-bgInner px-5 py-4 align-bottom text-eyebrow uppercase text-dim sm:w-[320px]"
-              >
-                {TABLE.featureColumn}
-              </th>
-
-              {planColumns.map((col) => (
-                <th
-                  key={col.id}
-                  scope="col"
-                  className="min-w-[120px] border-b border-line bg-bgInner px-4 py-4 text-center align-bottom"
-                >
-                  <span className="block font-display text-body-sm font-semibold text-white">
-                    {col.name}
-                  </span>
-                  {col.id === popularPlan.id ? (
-                    <span className="mt-1 block text-eyebrow uppercase text-accent">
-                      {RIBBON}
-                    </span>
-                  ) : null}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          {comparisonMatrix.map((section) => (
-            <tbody key={section.title}>
-              <tr>
-                <th
-                  scope="colgroup"
-                  colSpan={COL_COUNT}
-                  className="border-b border-line bg-bgLine p-0 text-left"
-                >
-                  {/* Sticks to the left edge so the band's label stays readable
-                      while the plan columns scroll past it. */}
-                  <span className="sticky left-0 block w-fit px-5 py-2.5 text-eyebrow uppercase text-white/75">
-                    {section.title}
-                  </span>
-                </th>
-              </tr>
-
-              {section.rows.map((row) => (
-                <tr key={row.label}>
-                  <th
-                    scope="row"
-                    className="sticky left-0 z-10 border-b border-line bg-bgInner px-5 py-4 align-top font-normal"
-                  >
-                    <span className="block text-body-sm leading-[1.4] text-white">
-                      {row.label}
-                    </span>
-                    {row.hint ? (
-                      <span className="mt-1.5 block max-w-[40ch] text-body-xs leading-[1.45] text-dim">
-                        {row.hint}
-                      </span>
-                    ) : null}
-                  </th>
-
-                  {planColumns.map((col) => (
-                    <td
-                      key={col.id}
-                      className="border-b border-line px-4 py-4 text-center align-top text-body-sm"
-                    >
-                      <MatrixCell value={row.values[col.id]} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+    <div className="mt-8 flex w-full flex-col gap-6 min-[1024px]:mt-[60px]">
+      <div className="flex w-full flex-col items-center gap-5 min-[1024px]:flex-row">
+        <div className="flex w-full flex-col gap-6 min-[1024px]:w-[200px]">
+          <div className="hidden flex-col gap-3 min-[1024px]:flex">
+            <h3 className="text-xl font-bold text-white">{TABLE.plansLabel}</h3>
+            <p className="text-xl font-normal leading-[26.04px] text-[#D1D1D1]">{TABLE.saveNote}</p>
+          </div>
+          <BillingToggle
+            period={period}
+            onChange={setPeriod}
+            className="w-full justify-center gap-2 sm:rounded-xl"
+          />
+        </div>
+        <div className="grid w-full grid-cols-4 gap-1 min-[1024px]:w-[calc(100%-200px)] min-[1440px]:w-[1100px]">
+          {plans.map((plan) => (
+            <ColumnCard
+              key={plan.id}
+              plan={plan}
+              period={period}
+              active={plan.id === activeId}
+              onSelect={() => setActiveId(plan.id)}
+            />
           ))}
-        </table>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-1">
+        {comparisonMatrix.map((section, i) => (
+          <div key={section.title} className="contents">
+            <h3
+              className={cn(
+                'w-full pb-2 text-xl font-bold text-white',
+                i === 0 ? 'pt-0' : 'pt-6',
+              )}
+            >
+              {section.title}
+            </h3>
+            {section.rows.map((row) => (
+              <FeatureRow key={row.label} row={row} activeId={activeId} />
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

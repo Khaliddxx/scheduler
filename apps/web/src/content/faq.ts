@@ -8,6 +8,8 @@
  * See docs/06-agpl-compliance.md.
  */
 
+import { channelCount } from './channels';
+
 export interface Faq {
   q: string;
   /** Plain text, or simple inline markup resolved by the Faq component. */
@@ -21,7 +23,7 @@ export const homeFaqs: Faq[] = [
   },
   {
     q: 'Which networks are supported?',
-    a: 'Twenty-five networks including X, LinkedIn, Instagram, Facebook, TikTok, YouTube, Threads, Bluesky, Mastodon, Pinterest, Reddit, Discord, Slack and Telegram, plus blogging destinations like Medium, DEV.to, Hashnode and WordPress.',
+    a: `${channelCount} networks including X, LinkedIn, Instagram, Facebook, TikTok, YouTube, Threads, Bluesky, Mastodon, Pinterest, Discord, Slack and Telegram, plus blogging destinations like Medium, DEV.to, Hashnode and WordPress.`,
   },
   {
     q: 'Can an AI agent post for me?',

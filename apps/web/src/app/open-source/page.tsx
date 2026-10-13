@@ -1,9 +1,17 @@
 import type { Metadata } from 'next';
 import { siteUrl } from '@scheduler/brand';
 import { OSS, FACTS, SECTIONS } from '@/content/open-source';
-import { PageHeader } from '@/components/layout/page-header';
-import { Section } from '@/components/ui/section';
-import { CtaBandSlim } from '@/components/sections/cta-band';
+import { CompanyHero } from '@/components/pages/company/hero';
+import {
+  CARD,
+  CARD_BODY,
+  CARD_LINK,
+  CARD_TITLE,
+  CardEmoji,
+  CompanyPage,
+  SECTION,
+} from '@/components/pages/company/primitives';
+import { cn } from '@/lib/cn';
 
 export const metadata: Metadata = {
   title: 'Open source and licence',
@@ -11,76 +19,71 @@ export const metadata: Metadata = {
   alternates: { canonical: siteUrl('/open-source') },
 };
 
+/** Decorative card icons, in FACTS order. */
+const ICONS = ['🧩', '📜', '📌', '📂'];
+
+const TEXT = 'text-[18px] leading-[26px] text-[#d1d1d1]';
+
 /**
  * This page is a compliance artifact as much as a marketing one. The footer
  * links here, and the licence expects the source offer to be reachable rather
- * than produced on request — so the facts table and the source link must stay.
+ * than produced on request — so the facts and the source link must stay.
+ *
+ * The reference has no licence page, so this one is built from its about and
+ * contact pages: the same centred opener, the contact page's card grid for the
+ * four facts (the value is the card's pink link), and the about page's
+ * centred-heading text sections for the body.
  */
 export default function OpenSourcePage() {
   return (
-    <>
-      <PageHeader eyebrow={OSS.eyebrow} title={OSS.title} body={OSS.body} />
+    <CompanyPage>
+      <CompanyHero title={OSS.title} body={OSS.body} bodyClassName="max-w-[760px]" />
 
-      <Section tight>
-        <div className="shell">
-          <dl className="grid gap-4 sm:grid-cols-2">
-            {FACTS.map((f) => (
-              <div key={f.term} className="card flex flex-col gap-1.5 p-6">
-                <dt className="text-eyebrow uppercase text-dim">{f.term}</dt>
-                <dd className="font-display text-body-xl font-bold text-white">
-                  {f.href ? (
-                    <a
-                      href={f.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline decoration-white/25 underline-offset-4 transition-colors hover:decoration-white"
-                    >
-                      {f.value}
-                    </a>
-                  ) : (
-                    f.value
-                  )}
-                </dd>
-                {f.note ? <p className="text-body-sm text-dim">{f.note}</p> : null}
-              </div>
-            ))}
-          </dl>
-        </div>
-      </Section>
-
-      <Section>
-        <div className="shell flex max-w-prose flex-col gap-12">
-          {SECTIONS.map((s) => (
-            <section key={s.heading} id={s.id} className="scroll-mt-28">
-              <h2 className="font-display text-heading-md leading-tight text-white">
-                {s.heading}
-              </h2>
-              {s.paragraphs?.map((p) => (
-                <p key={p.slice(0, 40)} className="mt-4 text-body-md text-muted">
-                  {p}
-                </p>
-              ))}
-              {s.list ? (
-                <>
-                  {s.list.intro ? (
-                    <p className="mt-4 text-body-md text-muted">{s.list.intro}</p>
-                  ) : null}
-                  <ul className="mt-4 flex flex-col gap-2.5">
-                    {s.list.items.map((item) => (
-                      <li key={item.slice(0, 40)} className="flex gap-3 text-body-md text-muted">
-                        <span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : null}
-            </section>
+      <section className={SECTION}>
+        <ul className="mx-auto grid w-full max-w-[1100px] grid-cols-1 gap-6 md:grid-cols-2">
+          {FACTS.map((f, i) => (
+            <li key={f.term} className={cn(CARD, 'flex flex-col gap-3 p-6 sm:p-8')}>
+              <CardEmoji>{ICONS[i] ?? '📎'}</CardEmoji>
+              <h2 className={cn(CARD_TITLE, 'text-center')}>{f.term}</h2>
+              {f.note ? <p className={cn(CARD_BODY, 'flex-1')}>{f.note}</p> : null}
+              <p className="[overflow-wrap:anywhere]">
+                {f.href ? (
+                  <a href={f.href} target="_blank" rel="noopener noreferrer" className={CARD_LINK}>
+                    {f.value}
+                  </a>
+                ) : (
+                  <span className="font-[600] text-white">{f.value}</span>
+                )}
+              </p>
+            </li>
           ))}
-        </div>
-      </Section>
+        </ul>
+      </section>
 
-      <CtaBandSlim />
-    </>
+      {SECTIONS.map((s) => (
+        <section key={s.heading} id={s.id} className={cn(SECTION, 'scroll-mt-24')}>
+          <div className="mx-auto w-full max-w-[820px] space-y-6">
+            <h2 className="h2-pz">{s.heading}</h2>
+            {s.paragraphs?.map((p) => (
+              <p key={p.slice(0, 40)} className={TEXT}>
+                {p}
+              </p>
+            ))}
+            {s.list ? (
+              <>
+                {s.list.intro ? <p className={TEXT}>{s.list.intro}</p> : null}
+                <ul className={cn(TEXT, 'list-disc space-y-3 pl-6 marker:text-pink')}>
+                  {s.list.items.map((item) => (
+                    <li key={item.slice(0, 40)} className="pl-1">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
+        </section>
+      ))}
+    </CompanyPage>
   );
 }

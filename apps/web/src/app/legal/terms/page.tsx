@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { siteUrl } from '@scheduler/brand';
 import { terms } from '@/content/legal';
-import { PageHeader } from '@/components/layout/page-header';
 import { LegalDoc } from '@/components/legal/legal-doc';
 
 export const metadata: Metadata = {
@@ -17,14 +16,9 @@ export const metadata: Metadata = {
 /**
  * The document itself is data in src/content/legal.ts and is rendered by
  * LegalDoc, which also carries the "no lawyer has read this" notice and
- * substitutes the unset brand placeholders. This file owns the page's `<h1>` and
- * its metadata, nothing else.
+ * substitutes the unset brand placeholders, inside the shared legal page shell
+ * (title included). This file owns the route's metadata, nothing else.
  */
 export default function TermsPage() {
-  return (
-    <>
-      <PageHeader eyebrow="Legal" title={terms.title} />
-      <LegalDoc doc={terms} />
-    </>
-  );
+  return <LegalDoc doc={terms} />;
 }

@@ -1,23 +1,28 @@
 import type { Metadata } from 'next';
-import { Section, SectionHeading } from '@/components/ui/section';
 import { Faq } from '@/components/sections/faq';
-import { CtaBandSlim } from '@/components/sections/cta-band';
 import { PAGE, TABLE } from '@/components/pricing/copy';
 import { PlanPicker } from '@/components/pricing/plan-picker';
 import { ComparisonTable } from '@/components/pricing/comparison-table';
 import { Reassurance } from '@/components/pricing/reassurance';
+import { PricingHero } from '@/components/pages/pricing/pricing-hero';
+import { StickyCta } from '@/components/pages/pricing/sticky-cta';
+import { previewImage } from '@/lib/preview-media';
 import { pricingFaqs } from '@/content/faq';
 
 /**
- * /pricing
+ * /pricing, in the reference design's order: hero, billing switch and plan
+ * cards, the feature comparison, the FAQ, then (below 1024px) a call to action
+ * pinned to the bottom of the screen. The site footer carries the closing CTA.
  *
- * A Server Component. The only client code on the route is `PlanPicker`, which owns
- * the billing toggle and the four plan cards because their prices change with it;
- * the heading, the comparison table, the reassurance strip and the FAQ all render
- * on the server.
+ * A Server Component. The client islands are the plan cards and the comparison,
+ * because both re-price with their billing switch (and the comparison also
+ * switches plans on a phone). The hero, the FAQ and the sticky CTA render on
+ * the server.
  *
  * Plan CTAs point at the application's own sign-up, never at a checkout URL — see
  * the note in components/pricing/copy.ts.
+ *
+ * The wrapper is the positioning context for the hero's edge doodles.
  */
 
 export const metadata: Metadata = {
@@ -31,43 +36,45 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
+  const tomado = previewImage('pricing/tomado.png');
+
   return (
-    <>
-      {/* `tight` keeps the header close under the sticky nav; the lg step restores the
-          site's usual rhythm on a large screen without fighting Section's own py. */}
-      <Section tight className="lg:py-20">
-        <div className="shell">
-          <div className="flex flex-col items-center text-center">
-            <span className="eyebrow">{PAGE.eyebrow}</span>
-            <h1 className="mx-auto mt-6 max-w-[22ch] font-display text-[38px] font-extrabold leading-[1.07] tracking-[-0.02em] text-white sm:text-display-md lg:text-display-lg">
-              {PAGE.title}
-            </h1>
-            <p className="mx-auto mt-5 max-w-[58ch] text-body-md text-muted">{PAGE.body}</p>
-          </div>
+    <div className="relative">
+      <PricingHero />
 
-          <div className="mt-11 sm:mt-14">
-            <PlanPicker />
-          </div>
-        </div>
-      </Section>
+      <section className="section-pz pt-[30px] min-[1024px]:pt-[10px]">
+        <PlanPicker popularDecoration={previewImage('pricing/popular-decoration.svg')} />
+        <Reassurance />
+      </section>
 
-      <Section id="compare">
-        <div className="shell">
-          <SectionHeading eyebrow={TABLE.eyebrow} title={TABLE.title} />
-
-          <div className="mt-12 sm:mt-14">
-            <ComparisonTable />
-          </div>
-
-          <div className="mt-5">
-            <Reassurance />
-          </div>
-        </div>
-      </Section>
+      <section id="compare" className="section-pz">
+        {/* The reference's heading wraps to two lines inside 696px, leaving room
+            for the swirl beside its first line. Ours fits on one line and the box
+            shrinks to it, so the right padding keeps the swirl off the last letter. */}
+        <h2 className="h2-pz relative max-w-[696px] px-5 sm:pr-[52px] min-[1024px]:pr-[45px]">
+          {TABLE.title}
+          {tomado ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={tomado}
+              alt=""
+              aria-hidden
+              width={45}
+              height={67}
+              loading="lazy"
+              className="absolute right-[6px] top-[-47px] min-[1024px]:right-[-10px] min-[1024px]:top-[-20px]"
+            />
+          ) : null}
+        </h2>
+        <p className="mt-4 text-center text-[18px] leading-[23.44px] min-[1024px]:hidden">
+          {TABLE.intro}
+        </p>
+        <ComparisonTable />
+      </section>
 
       <Faq items={pricingFaqs} />
 
-      <CtaBandSlim />
-    </>
+      <StickyCta />
+    </div>
   );
 }
