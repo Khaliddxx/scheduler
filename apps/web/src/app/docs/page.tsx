@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { brand, siteUrl, registerUrl } from '@scheduler/brand';
-import { PageHeader } from '@/components/layout/page-header';
-import { Section, SectionHeading } from '@/components/ui/section';
-import { Button } from '@/components/ui/button';
-import { CtaBandSlim } from '@/components/sections/cta-band';
+import { CompanyHero } from '@/components/pages/company/hero';
+import {
+  CARD,
+  CARD_BODY,
+  CARD_TITLE,
+  CompanyPage,
+  OUTLINE_PILL,
+  PillLink,
+  SECTION,
+  WHITE_PILL_PLAIN,
+} from '@/components/pages/company/primitives';
+import { cn } from '@/lib/cn';
 import { sellableChannels as channels, channelCount, noReviewChannels } from '@/content/channels';
 
 export const metadata: Metadata = {
@@ -43,79 +51,87 @@ const TOPICS = [
   { title: 'Licence and source', body: 'The open-source engine underneath, and your rights over it.', href: '/open-source' },
 ];
 
+/**
+ * The reference has no docs landing page, so this one uses the shell of its
+ * enterprise and contact pages: centred opener with a button pair, the contact
+ * page's card grid for the four steps (a numbered chip in place of the emoji),
+ * and the comparison index's link cards for "where to look next".
+ */
 export default function DocsPage() {
   return (
-    <>
-      <PageHeader
-        eyebrow="Documentation"
+    <CompanyPage>
+      <CompanyHero
         title="Getting started"
-        body={`Four steps to your first scheduled post. Deeper reference lives inside your workspace, where it can describe your actual plan and channels.`}
+        body="Four steps to your first scheduled post. Deeper reference lives inside your workspace, where it can describe your actual plan and channels."
       >
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button href={registerUrl()} external withChevron>
-            Open your workspace
-          </Button>
-          <Button href="/contact" variant="secondary">
-            Ask us something
-          </Button>
-        </div>
-      </PageHeader>
+        <PillLink href={registerUrl()} className={cn(WHITE_PILL_PLAIN, '!w-full sm:!w-fit')}>
+          Open your workspace
+        </PillLink>
+        <PillLink href="/contact" className={cn(OUTLINE_PILL, '!w-full sm:!w-fit')}>
+          Ask us something
+        </PillLink>
+      </CompanyHero>
 
-      <Section tight>
-        <div className="shell grid gap-4 md:grid-cols-2">
+      <section className={SECTION}>
+        <ol className="mx-auto grid w-full max-w-[1100px] grid-cols-1 gap-6 md:grid-cols-2">
           {START.map((s) => (
-            <div key={s.step} className="card flex gap-5 p-7">
+            <li key={s.step} className={cn(CARD, 'flex flex-col gap-3 p-6 sm:p-8')}>
               <span
-                aria-hidden
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand font-display text-body-sm font-bold text-white"
+                aria-hidden="true"
+                className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#682EE1] to-[#2A0772] font-jakarta text-[22px] font-bold sm:h-14 sm:w-14 sm:text-[26px]"
               >
                 {s.step}
               </span>
-              <div className="flex min-w-0 flex-col gap-2">
-                <h2 className="font-display text-body-xl font-bold text-white">{s.title}</h2>
-                <p className="text-body-sm leading-relaxed text-muted">{s.body}</p>
-              </div>
-            </div>
+              <h2 className={cn(CARD_TITLE, 'text-center')}>
+                <span className="sr-only">Step {s.step}: </span>
+                {s.title}
+              </h2>
+              <p className={CARD_BODY}>{s.body}</p>
+            </li>
           ))}
-        </div>
-      </Section>
+        </ol>
+      </section>
 
-      <Section>
-        <div className="shell">
-          <SectionHeading eyebrow="Reference" title="Where to look next" />
-          <div className="mt-12 grid gap-4 sm:grid-cols-2">
-            {TOPICS.map((t) => (
+      <section className={cn(SECTION, 'space-y-[40px] sm:space-y-[60px]')}>
+        <h2 className="h2-pz">Where to look next</h2>
+        <ul className="grid w-full max-w-[1100px] grid-cols-1 gap-3 md:grid-cols-2">
+          {TOPICS.map((t) => (
+            <li key={t.href} className="flex">
               <Link
-                key={t.href}
                 href={t.href}
-                className="card flex flex-col gap-2 p-7 transition-shadow hover:shadow-hairline-strong"
+                className="flex w-full items-center gap-4 rounded-2xl border border-white/5 bg-[#1A1919] p-5 transition-all hover:border-white/20 sm:rounded-[20px] sm:p-6"
               >
-                <h3 className="font-display text-body-xl font-bold text-white">{t.title}</h3>
-                <p className="text-body-sm leading-relaxed text-muted">{t.body}</p>
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
+                  <span className="text-[18px] font-bold leading-[23px] sm:text-[22px] sm:leading-[28px]">
+                    {t.title}
+                  </span>
+                  <span className="text-[16px] leading-[22px] text-[#d1d1d1]">{t.body}</span>
+                </span>
+                <span aria-hidden="true" className="shrink-0 text-[20px] text-[#a070e8]">
+                  →
+                </span>
               </Link>
-            ))}
-          </div>
+            </li>
+          ))}
+        </ul>
 
-          <p className="mt-10 text-body-sm text-dim">
-            Looking for a specific network? Every one has its own page —{' '}
-            {channels.slice(0, 4).map((c, i) => (
-              <span key={c.slug}>
-                {i > 0 ? ', ' : ''}
-                <Link href={`/channels/${c.slug}`} className="underline underline-offset-4 hover:text-white">
-                  {c.name}
-                </Link>
-              </span>
-            ))}
-            , and{' '}
-            <Link href="/channels" className="underline underline-offset-4 hover:text-white">
-              {channelCount - 4} more
-            </Link>
-            .
-          </p>
-        </div>
-      </Section>
-
-      <CtaBandSlim />
-    </>
+        <p className="max-w-[820px] text-center text-[18px] leading-[26px] text-[#d1d1d1]">
+          Looking for a specific network? Every one has its own page —{' '}
+          {channels.slice(0, 4).map((c, i) => (
+            <span key={c.slug}>
+              {i > 0 ? ', ' : ''}
+              <Link href={`/channels/${c.slug}`} className="font-[600] text-pink hover:underline">
+                {c.name}
+              </Link>
+            </span>
+          ))}
+          , and{' '}
+          <Link href="/channels" className="font-[600] text-pink hover:underline">
+            {channelCount - 4} more
+          </Link>
+          .
+        </p>
+      </section>
+    </CompanyPage>
   );
 }

@@ -73,7 +73,7 @@ function Title() {
   return (
     <>
       {COMPARE.title.slice(0, at)}{' '}
-      <span className="relative">
+      <span className="relative whitespace-nowrap">
         {UNDERLINED}
         <img
           alt=""
