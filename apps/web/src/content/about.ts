@@ -98,8 +98,12 @@ export const DUTIES: {
 
 export const FACTS_TITLE = 'Under the hood';
 
-/** The three-line summary strip under the duties. Facts, not metrics. */
+/**
+ * The summary strip under the page intro. Facts, not metrics: every value is
+ * read from brand.json or the channel list, never typed.
+ */
 export const FACTS: Array<{ label: string; value: string }> = [
+  { value: String(channelCount), label: 'networks it publishes to' },
   { value: brand.upstream.project, label: 'the engine underneath' },
   { value: brand.upstream.licence, label: 'the licence it carries' },
   { value: brand.upstream.pinnedTag, label: 'the version we run' },

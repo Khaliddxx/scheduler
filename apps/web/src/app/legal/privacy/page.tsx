@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { siteUrl } from '@scheduler/brand';
 import { privacy } from '@/content/legal';
-import { PageHeader } from '@/components/layout/page-header';
 import { LegalDoc } from '@/components/legal/legal-doc';
 
 export const metadata: Metadata = {
@@ -17,14 +16,9 @@ export const metadata: Metadata = {
 
 /**
  * Section 5 — social account tokens, scopes and platform data — is the section an
- * app reviewer reads. It lives in src/content/legal.ts; this file owns the page's
- * `<h1>` and its metadata.
+ * app reviewer reads. It lives in src/content/legal.ts and LegalDoc renders it,
+ * title included; this file owns the route's metadata.
  */
 export default function PrivacyPage() {
-  return (
-    <>
-      <PageHeader eyebrow="Legal" title={privacy.title} />
-      <LegalDoc doc={privacy} />
-    </>
-  );
+  return <LegalDoc doc={privacy} />;
 }

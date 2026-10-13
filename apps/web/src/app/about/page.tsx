@@ -1,10 +1,17 @@
 import type { Metadata } from 'next';
 import { brand, siteUrl } from '@scheduler/brand';
-import { PageHeader } from '@/components/layout/page-header';
-import { Button } from '@/components/ui/button';
-import { Prose } from '@/components/ui/prose';
-import { Section, SectionHeading } from '@/components/ui/section';
-import { CtaBandSlim } from '@/components/sections/cta-band';
+import { CompanyHero } from '@/components/pages/company/hero';
+import {
+  CARD,
+  CARD_BODY,
+  CARD_TITLE,
+  CardEmoji,
+  CompanyPage,
+  LEAD,
+  LinkChips,
+  SECTION,
+} from '@/components/pages/company/primitives';
+import { cn } from '@/lib/cn';
 import { ABOUT, DUTIES, FACTS, FACTS_TITLE, STORY } from '@/content/about';
 
 /**
@@ -12,10 +19,15 @@ import { ABOUT, DUTIES, FACTS, FACTS_TITLE, STORY } from '@/content/about';
  *
  * A Server Component with no client code on the route.
  *
- * The page's whole argument is that being a managed deployment of an open-source
- * engine is a selling point rather than something to bury, so the duties list sits
- * high — above the narrative — because "what stops being your problem" is the part
- * a buyer is actually weighing. Copy lives in src/content/about.ts.
+ * Laid out like the reference's about page: centred opener, a strip of four
+ * fact tiles, a card grid ("what we actually do"), then the narrative as plain
+ * centred-heading text sections, and a row of link chips. The reference's
+ * "company behind" block (legal entities and registered addresses) has no
+ * equivalent in our content, so it is left out rather than invented.
+ *
+ * The page's whole argument is that being a managed deployment of an
+ * open-source engine is a selling point rather than something to bury, so the
+ * duties sit above the narrative. Copy lives in src/content/about.ts.
  */
 
 export const metadata: Metadata = {
@@ -30,95 +42,80 @@ export const metadata: Metadata = {
   },
 };
 
+/** Decorative card icons, one per duty, in DUTIES order. */
+const DUTY_ICONS = ['🖥️', '🔄', '💾', '📝', '🛟'];
+
+const EXPLORE = [
+  { label: 'See what that costs', href: '/pricing' },
+  { label: 'Read the licence page', href: '/open-source' },
+  { label: 'For agencies', href: '/agencies' },
+  { label: 'How we compare', href: '/compare' },
+  { label: 'Developers', href: '/developers' },
+  { label: 'Contact', href: '/contact' },
+];
+
 export default function AboutPage() {
   return (
-    <>
-      <PageHeader eyebrow={ABOUT.eyebrow} title={ABOUT.title} body={ABOUT.body}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Button href="/pricing" withChevron className="w-full sm:w-auto">
-            See what that costs
-          </Button>
-          <Button href="/open-source" variant="secondary" className="w-full sm:w-auto">
-            Read the licence page
-          </Button>
-        </div>
-      </PageHeader>
+    <CompanyPage>
+      <CompanyHero title={ABOUT.title} body={ABOUT.body} bodyClassName="max-w-[760px]" />
 
-      <Section>
-        <div className="shell">
-          <SectionHeading
-            align="left"
-            eyebrow={DUTIES.eyebrow}
-            title={DUTIES.title}
-            body={DUTIES.body}
-          />
-
-          <ul className="mt-12 grid gap-5 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
-            {DUTIES.items.map((duty, i) => (
-              <li
-                key={duty.title}
-                className="card flex flex-col gap-3 p-6 sm:p-7"
-              >
-                <span
-                  aria-hidden
-                  className="font-display text-body-sm font-bold text-dim"
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <h3 className="font-display text-body-lg font-bold leading-[1.3] text-white">
-                  {duty.title}
-                </h3>
-                <p className="text-body-sm leading-[1.6] text-muted">{duty.body}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      <Section tight>
-        <div className="shell grid gap-12 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
-          <Prose className="max-w-[70ch]">
-            {STORY.map((section) => (
-              <section key={section.heading}>
-                <h2>{section.heading}</h2>
-                {section.paragraphs.map((paragraph) => (
-                  <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-                ))}
-              </section>
-            ))}
-          </Prose>
-
-          {/* The licence facts, repeated here so a reader who lands on About
-              rather than the licence page still sees them without scrolling. */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="card p-6">
-              <p className="text-eyebrow uppercase text-dim">{FACTS_TITLE}</p>
-
-              <dl className="mt-5 flex flex-col gap-5">
-                {FACTS.map((fact) => (
-                  <div key={fact.label} className="flex flex-col gap-1">
-                    <dt className="font-display text-body-lg font-bold text-white">
-                      {fact.value}
-                    </dt>
-                    <dd className="text-body-xs leading-[1.5] text-dim">{fact.label}</dd>
-                  </div>
-                ))}
-              </dl>
-
-              <Button
-                href="/open-source"
-                variant="secondary"
-                size="sm"
-                className="mt-7 w-full"
-              >
-                Licence and source
-              </Button>
+      {/* Fact tiles. */}
+      <section className={cn(SECTION, 'py-[40px] sm:py-[60px]')} aria-labelledby="about-facts">
+        <h2 id="about-facts" className="sr-only">
+          {FACTS_TITLE}
+        </h2>
+        <dl className="mx-auto grid w-full max-w-[1000px] grid-cols-2 gap-4 lg:grid-cols-4">
+          {FACTS.map((fact) => (
+            <div key={fact.label} className={cn(CARD, 'flex flex-col-reverse justify-end p-6 text-center')}>
+              <dt className="mt-2 text-[14px] text-[#d1d1d1] sm:text-[16px]">{fact.label}</dt>
+              <dd className="font-jakarta text-[22px] font-[700] leading-tight [overflow-wrap:anywhere] sm:text-[28px]">
+                {fact.value}
+              </dd>
             </div>
-          </aside>
-        </div>
-      </Section>
+          ))}
+        </dl>
+      </section>
 
-      <CtaBandSlim />
-    </>
+      {/* What we actually do. */}
+      <section className={cn(SECTION, 'space-y-[40px] sm:space-y-[60px]')}>
+        <div className="space-y-3 text-center">
+          <h2 className="h2-pz">{DUTIES.title}</h2>
+          <p className={cn(LEAD, 'mx-auto max-w-[700px]')}>{DUTIES.body}</p>
+        </div>
+        {/* Five cards: a centred flex wrap so the last row sits in the middle,
+            with each card the width of a cell in the reference's 3-column grid. */}
+        <ul className="mx-auto flex w-full max-w-[1100px] flex-wrap justify-center gap-6">
+          {DUTIES.items.map((duty, i) => (
+            <li
+              key={duty.title}
+              className={cn(
+                CARD,
+                'w-full space-y-3 p-6 sm:p-8 md:w-[calc(50%-12px)] lg:w-[calc((100%-48px)/3)]',
+              )}
+            >
+              <CardEmoji>{DUTY_ICONS[i] ?? '✳️'}</CardEmoji>
+              <h3 className={CARD_TITLE}>{duty.title}</h3>
+              <p className={CARD_BODY}>{duty.body}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* The narrative, one text section per heading. */}
+      {STORY.map((section) => (
+        <section key={section.heading} className={SECTION}>
+          <div className="mx-auto w-full max-w-[820px] space-y-6">
+            <h2 className="h2-pz">{section.heading}</h2>
+            {section.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 40)} className="text-[18px] leading-[26px] text-[#d1d1d1]">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <LinkChips title="Where to next" links={EXPLORE} />
+    </CompanyPage>
   );
 }
