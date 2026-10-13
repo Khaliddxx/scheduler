@@ -1,6 +1,6 @@
 import { brand, registerUrl } from '@scheduler/brand';
 import { SAMPLES } from '@/content/developers';
-import { copyFor, getIntegration, type Integration } from '@/content/integrations';
+import { copyFor, getIntegration, integrations, surfaceTable, type Integration } from '@/content/integrations';
 import { previewImage } from '@/lib/preview-media';
 import {
   AccentScope,
@@ -11,16 +11,20 @@ import {
   ChatExchange,
   CheckList,
   ClosingBand,
+  CodeCard,
+  Columns,
   ConnectSection,
   DataTable,
   FaqList,
   FeatureBox,
+  GuideGrid,
   LiveDot,
   Note,
   OrbitBand,
   PromptCards,
   SmallNote,
   StepCard,
+  SubBlock,
   TextLink,
 } from './blocks';
 import { CodeWindow } from './code-window';
@@ -28,7 +32,6 @@ import { PageHero, type HeroMedia } from './hero';
 import { IntegrationMark } from './mark';
 import { OutlinePill, PrimaryPill } from './pills';
 import { Rich } from './rich';
-import { surfaceTable } from '@/content/integrations';
 
 /**
  * The page behind /integrations/<slug>: the reference's agent-page template,
@@ -122,7 +125,11 @@ export function IntegrationPage({ item }: { item: Integration }) {
       <ConnectSection
         accent={accent}
         title={copy.connectTitle}
-        intro={<p>{item.summary}</p>}
+        intro={
+          <p>
+            {item.summary} {copy.connectRecap}
+          </p>
+        }
         steps={item.steps.map((step) => `${step.title}: ${step.body}`)}
         after={
           <Note>
@@ -205,13 +212,24 @@ export function IntegrationPage({ item }: { item: Integration }) {
         </Block>
 
         <Block title={copy.explainTitle} intro={<p>{copy.explainIntro}</p>}>
-          <FeatureBox
-            title={copy.explainBoxTitle}
-            list={copy.explainList}
-            aside={explainCode ? <CodeWindow title={explainCode.title} code={explainCode.code} /> : undefined}
-          >
-            <p>{copy.explainBoxBody}</p>
-          </FeatureBox>
+          {copy.terminalCards ? (
+            <Columns>
+              {copy.terminalCards.map((card) => (
+                <CodeCard key={card.title} title={card.title} meta={card.meta} code={card.code} codeTitle={card.codeTitle}>
+                  <p>{card.body}</p>
+                </CodeCard>
+              ))}
+            </Columns>
+          ) : null}
+          <SubBlock>
+            <FeatureBox
+              title={copy.explainBoxTitle}
+              list={copy.explainList}
+              aside={explainCode ? <CodeWindow title={explainCode.title} code={explainCode.code} /> : undefined}
+            >
+              <p>{copy.explainBoxBody}</p>
+            </FeatureBox>
+          </SubBlock>
           <Note>
             <Rich text={copy.explainNote} />
           </Note>
@@ -263,6 +281,23 @@ export function IntegrationPage({ item }: { item: Integration }) {
               { title: 'Something not working?', children: <CheckList items={copy.troubleshooting} /> },
             ]}
           />
+        </Block>
+
+        <Block title={copy.othersTitle} intro={<p>{copy.othersIntro}</p>}>
+          <GuideGrid
+            items={integrations
+              .filter((other) => other.slug !== item.slug)
+              .map((other) => ({
+                name: other.name,
+                href: `/integrations/${other.slug}`,
+                blurb: other.blurb,
+                mark: <Mark item={other} ring={false} className="h-8 w-8 sm:h-10 sm:w-10" />,
+              }))}
+          />
+          <Note>
+            Building your own? The <TextLink href="/developers">developers page</TextLink> covers the API, webhooks, MCP
+            server and command line.
+          </Note>
         </Block>
 
         <Block title={copy.faqTitle}>

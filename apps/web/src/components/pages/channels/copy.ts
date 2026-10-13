@@ -38,6 +38,9 @@ export const listOf = (items: string[]): string => {
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
+/** "a Facebook post", "an Instagram post", "an X post". */
+const a = (name: string): string => (/^[AEIOU]/i.test(name) || name === 'X' ? `an ${name}` : `a ${name}`);
+
 const countWord = (n: number): string =>
   ['zero', 'one', 'two', 'three', 'four', 'five'][n] ?? String(n);
 
@@ -111,11 +114,11 @@ export function featureCards(channel: Channel): FeatureCardCopy[] {
     },
     {
       icon: 'doc',
-      title: `What a ${channel.name} post can carry`,
+      title: `What ${a(channel.name)} post can carry`,
       body:
-        labels.length > 0
-          ? `${listOf(labels)}${labels.length === 1 ? '' : ','} set in the same editor you use for every other network, so ${channel.name} is never a separate job.`
-          : `Set in the same editor you use for every other network, so ${channel.name} is never a separate job.`,
+        own.length <= 2
+          ? `${own.map((key) => capabilityDetail[key]).join(' ')} Same editor, same calendar as every other network.`
+          : `${listOf(labels)}, set in the same editor you use for every other network, so ${channel.name} is never a separate job.`,
     },
     {
       icon: 'chat',
@@ -128,7 +131,7 @@ export function featureCards(channel: Channel): FeatureCardCopy[] {
     {
       icon: 'star',
       title: `One calendar, ${channelCount} networks`,
-      body: `Put ${channel.name} on the same calendar as ${listOf(neighbours)} and the rest, and change the wording per network where it should read differently.`,
+      body: `Put ${channel.name} on the same calendar as ${neighbours.join(', ')} and the rest, and change the wording per network where it should read differently.`,
     },
   ];
 }
@@ -194,6 +197,12 @@ export function channelFaqs(channel: Channel): FaqCopy[] {
     a: connectionCopy(channel),
   });
 
+  const credentials = pricingFaqs.find((item) => item.q === 'Do I need my own social app credentials?');
+  // Only where a platform app review exists: the answer is about who holds that registration.
+  if (credentials && channel.requiresAppReview) {
+    items.push({ q: `Do I need my own ${channel.name} developer app?`, a: credentials.a });
+  }
+
   items.push({
     q: `Can I connect more than one ${channel.name} account?`,
     a:
@@ -203,7 +212,7 @@ export function channelFaqs(channel: Channel): FaqCopy[] {
   });
 
   items.push({
-    q: `What can a ${channel.name} post include?`,
+    q: `What can ${a(channel.name)} post include?`,
     a: own.map((key) => `${capabilityLabel[key]}: ${lower(capabilityDetail[key])}`).join(' '),
   });
 
@@ -214,7 +223,7 @@ export function channelFaqs(channel: Channel): FaqCopy[] {
 
   if (own.includes('thread')) {
     items.push({
-      q: `Can I schedule a ${channel.name} thread?`,
+      q: `Can I schedule ${a(channel.name)} thread?`,
       a: `Yes. ${capabilityDetail.thread} Write every part in one draft and schedule it once.`,
     });
   }
@@ -243,7 +252,7 @@ export function channelFaqs(channel: Channel): FaqCopy[] {
   });
 
   items.push({
-    q: `What happens if a ${channel.name} post fails?`,
+    q: `What happens if ${a(channel.name)} post fails?`,
     a: faqAnswer(
       'What happens to posts if something fails?',
       'A failed publish is retried and then surfaced in the calendar with the platform error attached.',

@@ -47,7 +47,7 @@ export function ChannelHero({
             width={156}
             height={15}
             loading="eager"
-            className="pointer-events-none absolute left-[15.43px] top-[42.52px] max-w-none select-none"
+            className="pointer-events-none absolute left-[15.43px] top-[42.52px] select-none"
           />
         ) : null}
       </div>

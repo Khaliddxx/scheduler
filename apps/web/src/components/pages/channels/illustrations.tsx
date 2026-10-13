@@ -25,10 +25,15 @@ export interface IllustrationChannel {
   chip?: string;
 }
 
-function Frame({ id, children }: { id: string; children: ReactNode }) {
+/**
+ * `canvas` is the drawing width. The reference's team picture is 738px wide with
+ * the 698px frame on its left, so it renders a little smaller than the others
+ * in the same column; passing 738 keeps that.
+ */
+function Frame({ id, canvas = W, children }: { id: string; canvas?: number; children: ReactNode }) {
   return (
     <svg
-      viewBox={`0 0 ${W} ${H}`}
+      viewBox={`0 0 ${canvas} ${H}`}
       fill="none"
       aria-hidden
       focusable="false"
@@ -424,7 +429,7 @@ export function TeamIllustration() {
   );
 
   return (
-    <Frame id="team">
+    <Frame id="team" canvas={738}>
       <text x="99" y="74" fontSize="21" fontWeight={500} fill="white">
         Team members
       </text>

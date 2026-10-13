@@ -297,7 +297,7 @@ export const integrations: Integration[] = [
     setupWhere: 'An HTTP module and a custom webhook',
     related: ['n8n', 'zapier'],
     accent: 'purple',
-    glyph: 'workflow',
+    glyph: 'layers',
   },
   {
     slug: 'zapier',
@@ -407,6 +407,8 @@ export interface QAItem {
 
 export interface IntegrationCopy {
   connectTitle: string;
+  /** Second half of the connect intro, after the summary. */
+  connectRecap: string;
   /** Label, meta line, and the code window of the first step card. */
   connectCard: { label: string; meta: string; title: string; body: string; codeTitle: string; code: string; notes: Rich[] };
   /** Second step card: a chat, or a code window when there is no conversation (automation). */
@@ -427,6 +429,10 @@ export interface IntegrationCopy {
   /** Code window beside the list: `sample` picks one from developers.ts, `code` is literal. */
   explainCode?: { title: string; sample?: 'mcp' | 'cli' | 'curl'; code?: string };
   explainNote: Rich;
+  /** Claude Code only: two code cards (in a session, in CI) shown above the explainer panel. */
+  terminalCards?: Array<{ title: string; meta: string; body: string; codeTitle: string; code: string }>;
+  othersTitle: string;
+  othersIntro: string;
   promptsTitle: string;
   promptsIntro: string;
   prompts: Prompt[];
@@ -614,7 +620,7 @@ const mcpPlaceholders = () =>
   [
     `Name:   ${cliName}`,
     'URL:    <your MCP server URL>',
-    'Key:    <workspace API key from Settings → API>',
+    'Key:    <workspace API key>',
   ].join('\n');
 
 const httpRequest = [
@@ -675,6 +681,7 @@ export function copyFor(item: Integration): IntegrationCopy {
   if (surface === 'feed') {
     return {
       connectTitle: 'Turn a feed into posts in three steps',
+      connectRecap: 'Add the feed, choose what each post carries, then review it in the calendar with everything else. Every new item follows the same rules from then on.',
       connectCard: {
         label: 'Add',
         meta: 'any RSS feed',
@@ -749,6 +756,8 @@ export function copyFor(item: Integration): IntegrationCopy {
         { question: 'Can I edit a post before it goes out?', answer: 'Yes. Each item appears in the calendar like any other post, so you can edit the copy or move the time before it publishes.' },
         ...commonFaqTail,
       ],
+      othersTitle: `More ways to fill the ${b} calendar`,
+      othersIntro: 'The same workspace works with all of them. Each page covers setup, example requests and the networks it can reach.',
       closingTitle: `Let ${n} fill the calendar, and keep the final say`,
       closingBody: `Point your blog, newsletter or podcast at ${b} and let every new item become a post.`,
       ctaLabel: 'Add a feed',
@@ -760,6 +769,7 @@ export function copyFor(item: Integration): IntegrationCopy {
     const flow = n === 'Zapier' ? 'Zap' : n === 'Make' ? 'scenario' : 'workflow';
     return {
       connectTitle: `Connect ${n} in three steps`,
+      connectRecap: `Create a key, send the post from the ${flow}, then listen for the result. Posts arrive as drafts unless the request schedules them explicitly.`,
       connectCard: {
         label: 'Connect',
         meta: 'public API',
@@ -838,6 +848,8 @@ export function copyFor(item: Integration): IntegrationCopy {
         { question: 'How do I check a webhook is genuine?', answer: 'Verify the HMAC-SHA256 signature over the raw request body, with its timestamp, before parsing the body. Parsing first means acting on structure an attacker controls.' },
         ...commonFaqTail,
       ],
+      othersTitle: `More ways to fill the ${b} calendar`,
+      othersIntro: 'The same workspace works with all of them. Each page covers setup, example requests and the networks it can reach.',
       closingTitle: `Let ${n} fill the calendar, and keep the final say`,
       closingBody: `Connect ${n} to ${b} and let your ${flow}s end in a scheduled post.`,
       ctaLabel: `Connect ${n}`,
@@ -886,6 +898,9 @@ export function copyFor(item: Integration): IntegrationCopy {
 
   return {
     connectTitle: `Connect ${n} in three steps`,
+    connectRecap: cli
+      ? 'Create a key, install the command line and log in, then ask. Posts without an explicit time wait in the calendar as drafts.'
+      : `Create a workspace key, add the server to ${n}, then ask. Every post waits in the calendar as a draft until someone approves it.`,
     connectCard: {
       label: cli ? 'Install' : 'Connect',
       meta: 'Settings → API',
@@ -944,7 +959,7 @@ export function copyFor(item: Integration): IntegrationCopy {
           { icon: 'shield', title: 'Drafts by default', description: 'Nothing an agent writes publishes until a person approves it, unless you turn that off deliberately.' },
           { icon: 'key', title: 'Scoped to one workspace', description: 'The key decides what it can see. An agency can give an agent one client without handing it the rest.' },
         ],
-    explainTitle: cli ? `What is the ${b} command line?` : `What is the ${b} MCP server?`,
+    explainTitle: cli ? 'How do I post from the terminal with Claude Code?' : `What is the ${b} MCP server?`,
     explainIntro: cli
       ? 'One command, from wherever you already are: queue a post from a terminal, a Makefile, a CI job or a release script. Shipped a version? Announce it in the same pipeline that shipped it.'
       : `A Model Context Protocol server, so any MCP-speaking assistant can list your channels, draft a post, queue a week of them and reschedule what underperformed — without you writing glue code for its tool calls.`,
@@ -984,6 +999,41 @@ export function copyFor(item: Integration): IntegrationCopy {
           }
         : { title: 'Point an MCP client at your workspace', sample: 'mcp' },
     explainNote: `The snippets on this page are illustrative; exact names live in the reference that ships with the application. Read more on the [developers page](/developers#${cli ? 'cli' : 'mcp'}).`,
+    terminalCards: cli
+      ? [
+          {
+            title: 'Just ask',
+            meta: 'One prompt in a Claude Code session',
+            body: 'Ask in the session you already have open. Claude Code runs the create command with copy for each network and shows you the scheduled result.',
+            codeTitle: 'Claude Code',
+            code: [
+              '> Announce v4.2 on X, LinkedIn and Mastodon',
+              '  tomorrow at 9am using release-notes.md',
+              '',
+              'Claude Code: ran the create command.',
+              '  - X: scheduled for 9:00 tomorrow',
+              '  - LinkedIn: scheduled for 9:00 tomorrow',
+              '  - Mastodon: scheduled for 9:00 tomorrow',
+            ].join('\n'),
+          },
+          {
+            title: 'In a pipeline',
+            meta: 'Release scripts and CI jobs',
+            body: 'The command line authenticates from an environment variable, so the same announcement runs unattended in the pipeline that shipped the release.',
+            codeTitle: 'release.sh (illustrative)',
+            code: [
+              '#!/bin/bash',
+              '# Runs after a release is tagged.',
+              `# ${envPrefix}_API_KEY comes from the CI secret store.`,
+              '',
+              `${cliName} post \\`,
+              '  --from release-notes.md \\',
+              '  --channels x,linkedin,mastodon \\',
+              '  --at "2026-11-03 09:00 Europe/London"',
+            ].join('\n'),
+          },
+        ]
+      : undefined,
     promptsTitle: cli ? `What can I ask ${n} to run?` : `What can I ask ${n} to post?`,
     promptsIntro: cli
       ? 'Anything you would type yourself. Name the networks, the time and the source file, and Claude Code runs the command for you.'
@@ -1028,6 +1078,11 @@ export function copyFor(item: Integration): IntegrationCopy {
           'A key belongs to one workspace, so an agent cannot reach a workspace you did not share. Keys are listed with their last use, revoking one takes effect immediately, and every agent action is attributed in the audit trail.',
       },
       {
+        question: 'Can I connect more than one assistant?',
+        answer:
+          'Yes. The MCP server works with any MCP client, and keys are listed with their last use, so each assistant can have its own key and one can be revoked without touching the others.',
+      },
+      {
         question: `Can ${n} post on a schedule without me?`,
         answer: cli
           ? 'Yes: the command line authenticates from an environment variable, so it runs unattended in CI or a release script.'
@@ -1035,6 +1090,8 @@ export function copyFor(item: Integration): IntegrationCopy {
       },
       ...commonFaqTail,
     ],
+    othersTitle: `More ways to fill the ${b} calendar`,
+    othersIntro: 'The same workspace works with all of them. Each page covers setup, example requests and the networks it can reach.',
     closingTitle: `Let ${n} fill the calendar, and keep the final say`,
     closingBody: cli
       ? `Connect Claude Code to ${b} and announce every release from the terminal that shipped it.`

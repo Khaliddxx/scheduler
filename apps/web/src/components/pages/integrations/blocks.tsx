@@ -353,6 +353,36 @@ export function CodeSteps({
   );
 }
 
+/** A panel with a heading, an accent meta line, text, and a code window that stretches to the panel's height. */
+export function CodeCard({
+  title,
+  meta,
+  children,
+  code,
+  codeTitle,
+}: {
+  title: ReactNode;
+  meta?: ReactNode;
+  children?: ReactNode;
+  code?: string;
+  codeTitle?: string;
+}) {
+  return (
+    <div className={cn('flex min-w-0 flex-col p-6 sm:p-8', panel)}>
+      <h3 className="font-jakarta text-[21px] font-semibold leading-[28px] text-white sm:text-[24px] sm:leading-[30px]">
+        {title}
+      </h3>
+      {meta ? <p className="mt-1 text-[14px] leading-[20px] text-[color:var(--pz-accent)]">{meta}</p> : null}
+      {children ? <div className={cn('mt-4 space-y-4', bodyText)}>{children}</div> : null}
+      {code ? (
+        <div className="mt-6 flex flex-1 flex-col [&>div]:flex-1">
+          <CodeWindow title={codeTitle ?? 'Example'} code={code} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 /** Two- or three-column grid for arbitrary panels. */
 export function Columns({ children, cols = 2 }: { children: ReactNode; cols?: 2 | 3 }) {
   return (
@@ -403,7 +433,10 @@ export function FaqList({ items, openFirst = true }: { items: QA[]; openFirst?: 
 export function ChannelGrid() {
   return (
     <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {channelsInDisplayOrder.map((channel) => (
+      {orbitOrder()
+        .map((slug) => getChannel(slug))
+        .filter((c): c is NonNullable<typeof c> => Boolean(c))
+        .map((channel) => (
         <li key={channel.slug}>
           <Link
             href={`/channels/${channel.slug}`}
@@ -415,7 +448,7 @@ export function ChannelGrid() {
             <span className="truncate">{channelMenuLabels[channel.slug] ?? channel.name}</span>
           </Link>
         </li>
-      ))}
+        ))}
     </ul>
   );
 }
@@ -640,7 +673,7 @@ export function OrbitBand({
   center: ReactNode;
   footnote?: ReactNode;
 }) {
-  const channels = channelsInDisplayOrderForOrbit();
+  const channels = orbitOrder();
   const twoRings = channels.length > 12;
   const rings = twoRings
     ? [
@@ -715,14 +748,15 @@ export function OrbitBand({
   );
 }
 
-/** Sellable channels in the reference orbit's order (its first ring opens with X, LinkedIn, Instagram…). */
+/** The reference's channel order (its orbit and grid open with X, LinkedIn, Instagram…). */
 const ORBIT_ORDER = [
   'x', 'linkedin', 'instagram', 'facebook', 'threads', 'youtube', 'tiktok', 'pinterest',
   'bluesky', 'discord', 'slack', 'google-my-business', 'telegram', 'mastodon', 'dribbble',
   'wordpress', 'medium', 'hashnode', 'devto', 'warpcast', 'nostr', 'lemmy', 'vk', 'listmonk',
 ];
 
-function channelsInDisplayOrderForOrbit(): string[] {
+/** Sellable channel slugs in the reference's order (orbit and channel grid). */
+export function orbitOrder(): string[] {
   const sellable = new Set(channelsInDisplayOrder.map((c) => c.slug));
   const ordered = ORBIT_ORDER.filter((slug) => sellable.has(slug));
   const rest = channelsInDisplayOrder.map((c) => c.slug).filter((slug) => !ordered.includes(slug));

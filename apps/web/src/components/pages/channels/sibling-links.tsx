@@ -11,14 +11,15 @@ import { previewImage } from '@/lib/preview-media';
 export function SiblingLinks({ siblings }: { siblings: Channel[] }) {
   return (
     <nav aria-label="Also publishes to" className="space-y-3">
-      <ul className="flex flex-wrap gap-2">
+      <ul className="flex flex-wrap gap-1 sm:gap-2">
         {siblings.map((sibling) => {
           const icon = previewImage(`socials/${sibling.slug}.svg`);
           return (
             <li key={sibling.slug}>
               <Link
                 href={`/channels/${sibling.slug}`}
-                className="flex items-center gap-2 rounded-full bg-white/10 py-1.5 pl-1.5 pr-3.5 text-[15px] leading-5 text-white transition-colors hover:bg-white/20"
+                aria-label={sibling.name}
+                className="flex items-center gap-2 rounded-full bg-white/10 p-1.5 text-[15px] leading-5 text-white transition-colors hover:bg-white/20 sm:pr-3.5"
               >
                 {icon ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -31,7 +32,9 @@ export function SiblingLinks({ siblings }: { siblings: Channel[] }) {
                     className="h-5 w-5 rounded-[5px]"
                   />
                 ) : null}
-                {sibling.name}
+                <span aria-hidden className="hidden sm:inline">
+                  {sibling.name}
+                </span>
               </Link>
             </li>
           );
