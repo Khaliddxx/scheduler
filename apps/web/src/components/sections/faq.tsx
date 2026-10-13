@@ -1,20 +1,19 @@
-import { Section, SectionHeading } from '@/components/ui/section';
+import { previewImage } from '@/lib/preview-media';
 
 /**
- * The FAQ accordion, shared by the home page (`homeFaqs`) and the pricing page
- * (`pricingFaqs`) — hence items arrive as a prop rather than being imported here.
+ * The FAQ accordion, shared by the home page (`homeFaqs`), the pricing page
+ * (`pricingFaqs`) and the agencies page, hence items arrive as a prop.
  *
- * Built on native <details>/<summary>, which buys three things at once: it opens
- * and closes with no JavaScript, it stays a Server Component, and the keyboard
- * and screen-reader behaviour is the browser's own rather than a hand-rolled
- * aria-expanded dance. The cost is that the default disclosure marker has to be
- * styled away in two places (`list-none` for Firefox and the standards marker,
- * `::-webkit-details-marker` for older WebKit); the chevron below replaces it and
- * is rotated by `group-open:`.
+ * Layout follows the reference design: the heading (with a hand-drawn
+ * underline) sits in a 344px column on the left from 1024px, the questions fill
+ * the rest; below that both stack and the heading centres. Every item starts
+ * closed, and the chevron turns from down to up as it opens.
  *
- * Focus comes from the global :focus-visible rule in globals.css, and the
- * chevron's transition is already neutralised under prefers-reduced-motion there,
- * so neither is re-implemented.
+ * Built on native <details>/<summary>, which keeps this a Server Component and
+ * gives the browser's own keyboard and screen-reader behaviour. The default
+ * disclosure marker is styled away (`list-none` plus `::-webkit-details-marker`).
+ * The summary carries the card's padding, so the whole top of the card toggles,
+ * while clicks in the open answer do not.
  */
 
 export interface FaqItem {
@@ -24,17 +23,21 @@ export interface FaqItem {
 
 const DEFAULT_TITLE = 'Frequently asked questions';
 
+/** Down when closed, up when open; centred against a multi-line question. */
 function Chevron() {
   return (
-    <span
-      aria-hidden
-      className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/60 shadow-hairline transition-transform duration-200 group-hover:text-white group-open:rotate-180"
-    >
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <span aria-hidden className="flex shrink-0 items-center">
+      <svg
+        width="25"
+        height="24"
+        viewBox="0 0 25 24"
+        fill="none"
+        className="min-h-6 min-w-6 shrink-0 rotate-180 transition-all group-open:rotate-0"
+      >
         <path
-          d="M3.5 5.25 7 8.75l3.5-3.5"
-          stroke="currentColor"
-          strokeWidth="1.7"
+          d="M18.87 15l-6-6-6 6"
+          stroke="white"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -54,33 +57,48 @@ export function Faq({
 }) {
   if (items.length === 0) return null;
 
+  const underline = previewImage('faq/questions-underline.svg');
+
   return (
-    <Section id={id}>
-      {/* .shell owns the page gutter; the inner measure keeps the questions readable. */}
-      <div className="shell">
-        <div className="mx-auto max-w-[820px]">
-          <SectionHeading title={title} />
-
-          <ul className="card-lg mt-10 divide-y divide-separator sm:mt-12">
-            {items.map((item) => (
-              <li key={item.q}>
-                <details className="group">
-                  <summary className="flex cursor-pointer list-none items-start justify-between gap-5 px-6 py-6 transition-colors hover:bg-white/[0.02] sm:px-8 sm:py-7 [&::-webkit-details-marker]:hidden">
-                    <h3 className="font-display text-[20px] font-bold leading-[1.3] text-white sm:text-heading-sm sm:leading-[1.25]">
-                      {item.q}
-                    </h3>
-                    <Chevron />
-                  </summary>
-
-                  <p className="max-w-[66ch] px-6 pb-7 text-body-md text-muted sm:px-8 sm:pb-8">
-                    {item.a}
-                  </p>
-                </details>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <section
+      id={id}
+      className="section-pz gap-5 lg:flex-row lg:items-start lg:gap-[60px]"
+    >
+      <div className="flex flex-col items-center space-y-[13px] lg:items-start">
+        <h2 className="h2-pz max-w-[344px] lg:text-left">{title}</h2>
+        {underline ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={underline}
+            alt=""
+            aria-hidden
+            width={228}
+            height={62}
+            loading="lazy"
+            className="translate-y-[-14px] scale-[0.6] md:translate-y-0 md:scale-100"
+          />
+        ) : null}
       </div>
-    </Section>
+
+      <div className="w-full flex-1 space-y-[12px]">
+        {items.map((item) => (
+          <details
+            key={item.q}
+            className="group block cursor-pointer rounded-[20px] border border-white/10 bg-[#1A1919]/60"
+          >
+            <summary className="flex cursor-pointer list-none justify-between rounded-[20px] p-[30px] group-open:pb-0 [&::-webkit-details-marker]:hidden">
+              <h3 className="select-none pr-2 text-left font-jakarta text-[20px] font-bold leading-[22px] sm:text-[24px] sm:leading-[26.4px]">
+                {item.q}
+              </h3>
+              <Chevron />
+            </summary>
+
+            <div className="mx-[30px] mt-[20px] max-w-[780px] cursor-auto pb-[30px] text-left text-[17px] leading-[1.65] tracking-[-0.005em] text-[#d1d1d1] md:text-[18px] md:leading-[1.7]">
+              <p>{item.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/cn';
 import { useMode, type Mode } from '@/lib/mode';
 
 export interface ShowcaseClip {
@@ -89,24 +88,31 @@ function ClassicFrame({ clip, idle }: { clip?: ShowcaseClip; idle: boolean }) {
 
       <div className="absolute inset-x-[7%] bottom-[-3%] top-[15.5%] rounded-t-[min(3.2vw,44px)] bg-[#a58cff]/55 p-[1.25%] pb-0 max-[640px]:inset-x-[6%] max-[640px]:top-[22%]">
         <div className="relative h-full w-full overflow-hidden rounded-t-[min(2.4vw,34px)] bg-[#141414]">
-          {clip?.poster ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={clip.poster}
-              alt=""
-              aria-hidden
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-left-top"
-            />
-          ) : null}
-          {clip && idle ? (
-            <InViewVideo
-              key={clip.src}
-              src={clip.src}
-              poster={clip.poster}
-              className={cn('absolute inset-0 h-full w-full object-cover object-left-top')}
-            />
-          ) : null}
+          {/*
+            The calendar clip is drawn 13% wider than the window and pinned
+            right, so its left icon rail (which carries the reference
+            product's app mark) stays out of frame.
+          */}
+          <div className="absolute right-0 top-0 aspect-[1396/722] w-[113%] max-w-none">
+            {clip?.poster ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={clip.poster}
+                alt=""
+                aria-hidden
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : null}
+            {clip && idle ? (
+              <InViewVideo
+                key={clip.src}
+                src={clip.src}
+                poster={clip.poster}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

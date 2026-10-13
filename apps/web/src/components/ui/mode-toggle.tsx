@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/cn';
 
 /**
@@ -10,8 +10,9 @@ import { cn } from '@/lib/cn';
  * eased over Tailwind's default 150ms. Labels are plain white 16px (12px on
  * phones) and do not change weight or colour with the state.
  *
- * Built as a real `role="switch"` button so the state is announced, and both
- * labels are buttons too, so either side can be picked directly. Controlled
+ * Built as a real `role="switch"` button so the state is announced (it is
+ * named after the right-hand option, so "checked" means that one is on), and
+ * both labels are buttons too, so either side can be picked directly. Controlled
  * when `isRight` is passed; otherwise it keeps its own state.
  */
 export function ModeToggle({
@@ -31,7 +32,6 @@ export function ModeToggle({
 }) {
   const [own, setOwn] = useState(defaultRight);
   const isRight = controlled ?? own;
-  const id = useId();
 
   const set = (next: boolean) => {
     if (controlled === undefined) setOwn(next);
@@ -56,7 +56,7 @@ export function ModeToggle({
         type="button"
         role="switch"
         aria-checked={isRight}
-        aria-labelledby={id}
+        aria-label={right}
         onClick={() => set(!isRight)}
         className="relative h-[20px] w-[36px] shrink-0 rounded-[100px] p-[2px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         style={{ backgroundColor: isRight ? '#618DFF' : '#FC69FF' }}
@@ -72,11 +72,6 @@ export function ModeToggle({
       <button type="button" onClick={() => set(true)} className={label}>
         {right}
       </button>
-
-      {/* Names the switch for assistive tech without printing a third label. */}
-      <span id={id} className="sr-only">
-        {left} or {right}
-      </span>
     </div>
   );
 }
