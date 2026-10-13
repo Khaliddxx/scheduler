@@ -24,8 +24,9 @@ function Wordmark() {
   const name = brand.name;
   const W = 1188;
   const H = 541;
-  // Plus Jakarta Sans ExtraBold averages ~0.51em per letter; cap height ~0.72em.
-  const size = Math.min(580, W / (0.51 * Math.max(name.length, 1)));
+  // Plus Jakarta Sans ExtraBold: ~0.545em of ink per letter, ascender ~0.77em.
+  // The baseline sits one ascender down so the tallest letter touches the top.
+  const size = Math.min(545, W / (0.545 * Math.max(name.length, 1)));
   return (
     <svg
       aria-hidden
@@ -37,7 +38,7 @@ function Wordmark() {
     >
       <text
         x={W / 2}
-        y={Math.round(size * 0.72)}
+        y={Math.round(size * 0.77)}
         textAnchor="middle"
         fontSize={size}
         fill="#E064FF"
