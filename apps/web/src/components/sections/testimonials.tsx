@@ -22,7 +22,7 @@ import { TestimonialsWall } from '@/components/sections/testimonials-wall';
 
 /** Section chrome. No content home for these yet; see Capabilities for the same pattern. */
 const HEADING = {
-  title: 'What people say about it',
+  title: 'Wall of love',
 };
 
 const NOTICE = {

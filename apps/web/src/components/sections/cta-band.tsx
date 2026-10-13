@@ -23,7 +23,7 @@ import { previewImage } from '@/lib/preview-media';
  */
 
 /** Default heading. The home page's <h1> is already `brand.tagline`, so this band does not repeat it. */
-const DEFAULT_TITLE = 'Ready when you are';
+const DEFAULT_TITLE = 'Ready to get started?';
 
 const subCopy = `${channelCount} networks, ${integrationCount} connectable accounts, and a ${TRIAL_DAYS}-day trial on every plan.`;
 

@@ -80,7 +80,7 @@ export default function HomePage() {
       <ChannelGrid />
       <CtaBand />
       <Testimonials />
-      <Faq items={homeFaqs} title="Questions, answered" id="faq" />
+      <Faq items={homeFaqs} title="Frequently asked questions" id="faq" />
     </>
   );
 }

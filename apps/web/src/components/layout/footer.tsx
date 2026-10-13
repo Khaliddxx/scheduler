@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { brand, registerUrl } from '@scheduler/brand';
-import { footerColumns } from '@/content/nav';
+import { agentsMenu, footerColumns } from '@/content/nav';
+import { previewImage } from '@/lib/preview-media';
 import { channelCount } from '@/content/channels';
 import { Logo } from '@/components/ui/logo';
 import { DoubleChevron, startPillClass } from '@/components/layout/header-icons';
@@ -75,6 +76,45 @@ const roundButton =
  * non-affiliation statement here. A persistent, prominent link discharges
  * that obligation and costs nothing. Do not remove it.
  */
+/** The assistants column: the same list as the header's AI Agents menu. */
+function AgentsColumn() {
+  return (
+    <div className="space-y-3 sm:space-y-5">
+      <p className="font-bold">AI Agents</p>
+      <ul className="space-y-2 sm:space-y-3">
+        {agentsMenu.map((agent) => {
+          const src = previewImage(`agents/${agent.logo}.svg`);
+          return (
+            <li key={agent.label} className="whitespace-nowrap transition-all hover:text-pink">
+              <Link
+                href={agent.href}
+                className="flex items-center justify-center gap-2 sm:justify-start"
+              >
+                {src ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={src}
+                    alt=""
+                    width={24}
+                    height={24}
+                    draggable={false}
+                    className={
+                      agent.ownTile
+                        ? 'h-5 w-5 shrink-0'
+                        : 'h-5 w-5 shrink-0 select-none rounded-[27%] ring-1 ring-inset ring-white/25'
+                    }
+                  />
+                ) : null}
+                {agent.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function Footer() {
   return (
     <footer className="flex flex-col items-center">
@@ -132,12 +172,13 @@ export function Footer() {
           </div>
 
           <div className="flex w-full max-w-[820px] flex-col justify-between gap-[60px] sm:flex-row sm:flex-wrap lg:flex-nowrap">
-            {footerColumns.map((col) => (
+            {footerColumns.map((col, i) => [
+              i === 1 ? <AgentsColumn key="ai-agents" /> : null,
               <div key={col.title} className="space-y-3 sm:space-y-5">
                 <p className="font-bold">{col.title}</p>
                 <ul className="space-y-2 sm:space-y-3">
                   {col.links.map((link) => (
-                    <li key={link.href} className="transition-all hover:text-pink">
+                    <li key={link.href} className="whitespace-nowrap transition-all hover:text-pink">
                       {link.external ? (
                         <a href={link.href} target="_blank" rel="noopener noreferrer">
                           {link.label}
@@ -148,8 +189,8 @@ export function Footer() {
                     </li>
                   ))}
                 </ul>
-              </div>
-            ))}
+              </div>,
+            ])}
           </div>
         </div>
 

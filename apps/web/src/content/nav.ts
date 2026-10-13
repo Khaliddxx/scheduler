@@ -63,6 +63,8 @@ export const footerColumns: FooterColumn[] = [
     title: 'Resources',
     links: [
       { label: 'Documentation', href: '/docs' },
+      { label: 'Licence and source', href: '/open-source' },
+      { label: 'Self-host it yourself', href: '/open-source#self-host' },
     ],
   },
   {
@@ -73,13 +75,6 @@ export const footerColumns: FooterColumn[] = [
       { label: 'Terms of service', href: '/legal/terms' },
       { label: 'Privacy policy', href: '/legal/privacy' },
       { label: 'Sub-processors', href: '/legal/sub-processors' },
-    ],
-  },
-  {
-    title: 'Open source',
-    links: [
-      { label: 'Licence and source', href: '/open-source' },
-      { label: 'Self-host it yourself', href: '/open-source#self-host' },
     ],
   },
 ];
@@ -206,10 +201,3 @@ export const channelMenuLabels: Record<string, string> = {
   'google-my-business': 'Google Business',
 };
 
-/** Secondary column in the Resources menu. */
-export const resourceMenu: MenuItem[] = [
-  { label: 'Documentation', href: '/docs', glyph: 'book' },
-  { label: 'Compare', href: '/compare', glyph: 'scales' },
-  { label: 'Open source', href: '/open-source', glyph: 'code' },
-  { label: 'For agencies', href: '/agencies', glyph: 'users' },
-];

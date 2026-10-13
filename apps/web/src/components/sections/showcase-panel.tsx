@@ -7,17 +7,21 @@ import { previewClip, previewPoster } from '@/lib/preview-media';
  * Which clip each mode shows. Resolved on the server so the client only ever
  * receives paths that exist; a missing file leaves that mode's frame empty.
  */
-const resolveClips = (): Partial<Record<Mode, ShowcaseClip>> => {
-  const out: Partial<Record<Mode, ShowcaseClip>> = {};
-
-  const agentic = previewClip('hero-agentic');
-  if (agentic) out.agentic = { src: agentic, poster: previewPoster('hero-agentic') ?? undefined };
-
-  const classic = previewClip('scheduling');
-  if (classic) out.classic = { src: classic, poster: previewPoster('scheduling') ?? undefined };
-
-  return out;
+const resolveClip = (name: string): ShowcaseClip | undefined => {
+  const src = previewClip(name);
+  if (!src) return undefined;
+  return {
+    src,
+    poster: previewPoster(name) ?? undefined,
+    mobileSrc: previewClip(`${name}-mobile`) ?? undefined,
+    mobilePoster: previewPoster(`${name}-mobile`) ?? undefined,
+  };
 };
+
+const resolveClips = (): Partial<Record<Mode, ShowcaseClip>> => ({
+  agentic: resolveClip('hero-agentic'),
+  classic: resolveClip('hero-classic'),
+});
 
 /**
  * The block directly under the hero: the agentic / classic switch, then the

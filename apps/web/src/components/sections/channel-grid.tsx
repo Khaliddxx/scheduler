@@ -35,6 +35,12 @@ const wallChannels: Channel[] = [...channelsInDisplayOrder].sort(
   (a, b) => wallRank(a.slug) - wallRank(b.slug),
 );
 
+/**
+ * The wall shows 18 channels in three rows (7 / 6 / 5), the reference's shape.
+ * The heading carries the full count, and every channel is on /channels.
+ */
+const WALL_SIZE = 18;
+
 type Slot = Channel | null;
 
 /**
@@ -89,7 +95,7 @@ function ChannelTile({ channel }: { channel: Channel }) {
 
 export function ChannelGrid() {
   const underline = previewImage('channel-grid/providers-underline.svg');
-  const rows = toRows(wallChannels);
+  const rows = toRows(wallChannels.slice(0, WALL_SIZE));
 
   return (
     <section id="channels" className="section-pz space-y-10 sm:space-y-[60px]">

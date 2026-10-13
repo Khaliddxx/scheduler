@@ -12,6 +12,10 @@ the stills that ship with them (`*.webp`, `*.jpg`), the assistant logos in
 stand-ins. The team will replace every one of them with our own recordings
 before launch.**
 
+Several of them show the other product's name on screen: `hero-classic*` shows
+its wordmark in the app header, and the prompts in `hero-agentic*` and
+`chatgpt` ask to schedule posts "in Postiz". Those are the first to replace.
+
 ## How the slot works
 
 - `src/components/ui/video-frame.tsx` looks for `<name>.webm` here at build
@@ -51,7 +55,10 @@ Do that, or replace every file, before launch.
 | file | used by | shows | size |
 | --- | --- | --- | --- |
 | `hero-agentic.webm` + `.jpg` | showcase panel (agentic) | an assistant asked for four posts | 1920×1018 |
-| `scheduling.webm` + `.webp` | showcase panel (classic), capabilities: planning | the week calendar | 1396×722 |
+| `hero-agentic-mobile.webm` + `.jpg` | showcase panel (agentic), 640px and below | portrait cut of the same | 1062×1080 |
+| `hero-classic.webm` + `.jpg` | showcase panel (classic) | the calendar, generating posts with AI | 1920×1018 |
+| `hero-classic-mobile.webm` + `.jpg` | showcase panel (classic), 640px and below | portrait cut of the same | 1004×1022 |
+| `scheduling.webm` + `.webp` | capabilities: planning | the week calendar | 1396×722 |
 | `chatgpt.webm` + `.webp` | assistants grid | ChatGPT asked for two posts | 1280×920 |
 | `claude-mcp.webm` + `.webp` | assistants grid | Claude desktop over MCP | 1320×920 |
 | `claude.webm` + `.webp` | assistants grid | a terminal session | 1280×920 |
